@@ -36,6 +36,48 @@ enum Source {
   market_address
 }
 
+enum OwnerShip {
+  self_owned
+  family_member
+  on_lease
+}
+
+enum ActivityType {
+  manual
+  mechanical
+}
+
+enum IrrigationSource {
+  solar_tube_well
+  motor_tube_well
+  canal
+}
+
+enum QuantityUnit {
+  liter
+  kg
+}
+
+enum IssueClassification {
+  disease
+  insect
+  soil
+  water
+  temperature
+}
+
+enum ProductDropDown {
+  Product1
+  Product2
+  Product3
+  Product4
+}
+
+enum Mechanisation {
+  manual
+  machines
+}
+
 model Farmer {
   sawie_nr                 Int                 @id @default(autoincrement())
   name                     String
@@ -77,6 +119,8 @@ model Crop {
   crop_name    String
   farmer_crop  FarmerCrop[]
   crop_variety CropVariety[]
+  field        Fields?
+  sowing       Sowing[]
 }
 
 model CropVariety {
@@ -85,6 +129,7 @@ model CropVariety {
   crop_id      Int
   crop         Crop         @relation(fields: [crop_id], references: [id])
   FarmerCrop   FarmerCrop[]
+  sowing       Sowing[]
 }
 
 model FarmerContactPerson {
@@ -114,6 +159,134 @@ model Fields {
   traditional_farmed_cotton_area   Int
   other_farmed_area                Int
   production_forecast              Int
+  ownership                        OwnerShip
+  rain_water                       String
+  michung                          String
+  green_fertilizer                 String
+  trap_crop                        String
+  border_crop                      String
+  trees_at_edge                    String
+  bio_gas_plant                    String
+  conversion_of_organisms          String
+  inter_crop                       String
+  clear_election                   String
+  method_of_irrigation             String // drop etc
+  mapped_digitalized               String
+  preparation_of_field_id          Int                   @unique
+  crop_id                          Int                   @unique
+  crop                             Crop                  @relation(fields: [crop_id], references: [id])
+  preparation_of_field             PreparationOfField    @relation(fields: [preparation_of_field_id], references: [id])
+  Irrigation                       Irrigation[]
+  weed                             WeedTreatment[]
+  fertilizer                       Fertilizer[]
+  IssueDetected                    IssueDetected[]
+  disease_and_pest                 DiseaseAndPest[]
+  harvesting                       Harvesting[]
+}
+
+model PreparationOfField {
+  id                  Int          @id @default(autoincrement())
+  levelalized         Boolean
+  completion_date     DateTime
+  activities          ActivityType
+  male_labour_hours   Int
+  female_labour_hours Int
+  fields              Fields?
+}
+
+model Sowing {
+  id                  Int         @id @default(autoincrement())
+  sowing_date         DateTime
+  crop_id             Int
+  crop_variety_id     Int
+  male_labour_hours   Int
+  female_labour_hours Int
+  kg_sown             Int
+  price_per_kg        Int
+  crop                Crop        @relation(fields: [crop_id], references: [id])
+  crop_variety        CropVariety @relation(fields: [crop_variety_id], references: [id])
+}
+
+model Irrigation {
+  id                   Int              @id @default(autoincrement())
+  irrigation_date      DateTime
+  male_labour_hours    Int
+  female_labour_hours  Int
+  unit_m3              Int
+  source_of_irrigation IrrigationSource
+  cost_acre            Int
+  field_id             Int
+  field                Fields           @relation(fields: [field_id], references: [id])
+}
+
+model WeedTreatment {
+  id                  Int          @id @default(autoincrement())
+  weed_date           Int
+  activity            String
+  title_of_product    String
+  quantity            Int
+  quantity_unit       QuantityUnit
+  male_labour_hours   Int
+  female_labour_hours Int
+  cost_per_acer       Int
+  field_id            Int
+  field               Fields       @relation(fields: [field_id], references: [id])
+}
+
+model Fertilizer {
+  id                  Int          @id @default(autoincrement())
+  fertilizer_date     Int
+  male_labour_hours   Int
+  female_labour_hours Int
+  type_of_fertilizer  String
+  quantity            Int
+  quantity_unit       QuantityUnit
+  fertilizer_cost     Int
+  cost_per_acer       Int
+  field_id            Int
+  field               Fields       @relation(fields: [field_id], references: [id])
+}
+
+model IssueDetected {
+  id                   Int                 @id @default(autoincrement())
+  issue_date           Int
+  issue_name           String
+  issue_calssification IssueClassification
+  male_labour_hours    Int
+  female_labour_hours  Int
+  issue_cost           Int
+  cost_per_acer        Int
+  field_id             Int
+  field                Fields              @relation(fields: [field_id], references: [id])
+}
+
+model DiseaseAndPest {
+  id                  Int             @id @default(autoincrement())
+  disease_date        Int
+  cost                Int
+  product             ProductDropDown
+  male_labour_hours   Int
+  female_labour_hours Int
+  quantity            Int
+  quantity_unit       QuantityUnit
+  cost_per_acer       Int
+  field_id            Int
+  field               Fields          @relation(fields: [field_id], references: [id])
+}
+
+model Harvesting {
+  id                     Int           @id @default(autoincrement())
+  est_date_of_harvesting DateTime
+  date_of_completion     DateTime
+  est_yield              Int
+  harvested_yield        Int
+  male_labour_hours      Int
+  female_labour_hours    Int
+  mechanisation          Mechanisation
+  cost_per_acer          Int
+  total_cost             Int
+  field_id               Int
+  field                  Fields        @relation(fields: [field_id], references: [id])
 }
 
 model Training {
