@@ -154,6 +154,7 @@ model Fields {
   special_farm_storage_aability    SpecialFarmAAbilities
   special_farm_processing_aability String
   land_preparation                 String
+  field_address                    String
   organic_acres_farmed_again       Int
   area_changed_into_organic        Int
   traditional_farmed_cotton_area   Int
@@ -182,6 +183,15 @@ model Fields {
   IssueDetected                    IssueDetected[]
   disease_and_pest                 DiseaseAndPest[]
   harvesting                       Harvesting[]
+
+  // Foreign key relations
+  tehsil_id   Int
+  state_id    Int
+  district_id Int
+  country_id  Int
+  tehsil      Tehsils   @relation(fields: [tehsil_id], references: [id])
+  state       States    @relation(fields: [state_id], references: [id])
+  district    Districts @relation(fields: [district_id], references: [id])
 }
 
 model PreparationOfField {
@@ -319,4 +329,52 @@ model MotorTubeWell {
   costs_per_hour  Int
   costs_per_liter Int
   farmer          Farmer   @relation(fields: [farmerSawie_nr], references: [sawie_nr])
+}
+
+model Tehsils {
+  id                    Int       @id @default(autoincrement())
+  name                  String
+  district_id           Int
+  state_id              Int
+  country_id            Int
+  salinity_exposure     Int?
+  salinity_exposure_max Int?
+  arsenic_exposure      Int?
+  arsenic_exposure_max  Int?
+  water_level           Int?
+  water_level_max       Int?
+  tehsil_coordinates    String?
+  District              Districts @relation(fields: [district_id], references: [id])
+  State                 States    @relation(fields: [state_id], references: [id])
+  Country               Countries @relation(fields: [country_id], references: [id])
+  Fields                Fields[]
+}
+
+model States {
+  id         Int         @id @default(autoincrement())
+  name       String
+  country_id Int
+  Country    Countries   @relation(fields: [country_id], references: [id])
+  Districts  Districts[]
+  Tehsils    Tehsils[]
+  Fields     Fields[]
+}
+
+model Districts {
+  id         Int       @id @default(autoincrement())
+  name       String
+  state_id   Int
+  country_id Int
+  State      States    @relation(fields: [state_id], references: [id])
+  Country    Countries @relation(fields: [country_id], references: [id])
+  Tehsils    Tehsils[]
+  Fields     Fields[]
+}
+
+model Countries {
+  id        Int         @id @default(autoincrement())
+  name      String
+  States    States[]
+  Districts Districts[]
+  Tehsils   Tehsils[]
 }
