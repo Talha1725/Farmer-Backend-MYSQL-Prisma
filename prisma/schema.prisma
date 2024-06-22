@@ -1,0 +1,149 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum SupervisorType {
+  field_book_responsible
+  field_trainer
+  assistant
+}
+
+enum RegenFarming {
+  registered
+  transition_phase
+  have_certificate
+}
+
+enum SpecialFarmAAbilities {
+  no_storing
+  temp_warehouse
+  perm_warehouse
+  transition_bags_available
+}
+
+enum CropType {
+  organic
+  traditional
+}
+
+enum Source {
+  by_myself
+  market_address
+}
+
+model Farmer {
+  sawie_nr                 Int                 @id @default(autoincrement())
+  name                     String
+  father_name              String              @unique
+  phone                    String
+  state                    String
+  tehsil                   String
+  district                 String
+  farmer_address           String
+  farmer_contact_person_id Int                 @unique
+  super_visor_id           Int                 @unique
+  labour_costs_male        String
+  labour_costs_female      String
+  training                 Training?
+  farmer_crop              FarmerCrop[]
+  solar_tube_well          SolarTubeWell?
+  motor_tube_well          MotorTubeWell?
+  super_visor              SuperVisor          @relation(fields: [super_visor_id], references: [id])
+  farmer_contact_person    FarmerContactPerson @relation(fields: [farmer_contact_person_id], references: [id])
+}
+
+model FarmerCrop {
+  id                 Int         @id @default(autoincrement())
+  farmerSawie_nr     Int
+  crop_id            Int
+  crop_variety_id    Int
+  date_of_purchasing DateTime
+  source             Source
+  total_quantity     Int
+  total_price        Int
+  price_per_kg       Int
+  farmer             Farmer      @relation(fields: [farmerSawie_nr], references: [sawie_nr])
+  crop               Crop        @relation(fields: [crop_id], references: [id])
+  crop_variety       CropVariety @relation(fields: [crop_variety_id], references: [id])
+}
+
+model Crop {
+  id           Int           @id @default(autoincrement())
+  crop_name    String
+  farmer_crop  FarmerCrop[]
+  crop_variety CropVariety[]
+}
+
+model CropVariety {
+  id           Int          @id @default(autoincrement())
+  variety_name String
+  crop_id      Int
+  crop         Crop         @relation(fields: [crop_id], references: [id])
+  FarmerCrop   FarmerCrop[]
+}
+
+model FarmerContactPerson {
+  id     Int     @id @default(autoincrement())
+  name   String
+  number String
+  Farmer Farmer?
+}
+
+model SuperVisor {
+  id      Int            @id @default(autoincrement())
+  type    SupervisorType
+  name    String
+  number  String
+  company String
+  Farmer  Farmer?
+}
+
+model Fields {
+  id                               Int                   @id @default(autoincrement())
+  regen_farming                    RegenFarming
+  special_farm_storage_aability    SpecialFarmAAbilities
+  special_farm_processing_aability String
+  land_preparation                 String
+  organic_acres_farmed_again       Int
+  area_changed_into_organic        Int
+  traditional_farmed_cotton_area   Int
+  other_farmed_area                Int
+  production_forecast              Int
+}
+
+model Training {
+  id             Int    @id @default(autoincrement())
+  month          String
+  topic          String
+  trainer_name   String
+  idea           String
+  farmerSawie_nr Int    @unique
+  farmer         Farmer @relation(fields: [farmerSawie_nr], references: [sawie_nr])
+}
+
+model SolarTubeWell {
+  id              Int      @id @default(autoincrement())
+  farmerSawie_nr  Int      @unique
+  activity_date   DateTime @default(now())
+  repairing_costs Int
+  manageing_hours Int
+  costs_per_hour  Int
+  farmer          Farmer   @relation(fields: [farmerSawie_nr], references: [sawie_nr])
+}
+
+model MotorTubeWell {
+  id              Int      @id @default(autoincrement())
+  farmerSawie_nr  Int      @unique
+  activity_date   DateTime @default(now())
+  repairing_costs Int
+  manageing_hours Int
+  diesel_quantity Int
+  costs_per_hour  Int
+  costs_per_liter Int
+  farmer          Farmer   @relation(fields: [farmerSawie_nr], references: [sawie_nr])
+}
