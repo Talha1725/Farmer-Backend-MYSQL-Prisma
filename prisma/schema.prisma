@@ -4,7 +4,8 @@ datasource db {
 }
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["relationJoins"]
 }
 
 enum SupervisorType {
@@ -80,7 +81,7 @@ enum Mechanisation {
 
 // done
 model Farmer {
-  sawie_nr                 Int            @id @default(autoincrement())
+  sawie_nr                 Int                 @id @default(autoincrement())
   name                     String?
   father_name              String?
   phone                    String?
@@ -88,8 +89,8 @@ model Farmer {
   tehsil                   String?
   district                 String?
   farmer_address           String?
-  farmer_contact_person_id Int
-  super_visor_id           Int
+  farmer_contact_person_id Int                 @default(1)
+  super_visor_id           Int                 @default(1)
   labour_costs_male        String?
   labour_costs_female      String?
   training                 Training?
@@ -97,6 +98,8 @@ model Farmer {
   solar_tube_well          SolarTubeWell?
   motor_tube_well          MotorTubeWell?
   Fields                   Fields[]
+  supervisor               SuperVisor          @relation(fields: [super_visor_id], references: [id])
+  FarmerContactPerson      FarmerContactPerson @relation(fields: [farmer_contact_person_id], references: [id])
 }
 
 // done
@@ -134,9 +137,10 @@ model CropVariety {
 
 // done
 model FarmerContactPerson {
-  id     Int     @id @default(autoincrement())
+  id     Int      @id @default(autoincrement())
   name   String?
   number String?
+  farmer Farmer[]
 }
 
 // done
@@ -146,6 +150,7 @@ model SuperVisor {
   name    String?
   number  String?
   company String?
+  farmer  Farmer[]
 }
 
 model Fields {

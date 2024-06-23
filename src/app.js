@@ -1,5 +1,6 @@
 const express = require('express');
-const userRoutes = require('./routes/userRoutes');
+const farmerBookRoutes = require('./routes/farmerBookRoutes');
+const fieldBookRoutes = require('./routes/fieldBookRoutes');
 
 const app = express();
 
@@ -9,6 +10,7 @@ app.get('/', (req, res) => {
     res.send('Hello, World!');
 });
 
-app.use('/users', userRoutes);
+app.use('/farmer-book', farmerBookRoutes);
+app.use('/field-book', fieldBookRoutes);
 
 module.exports = app;
