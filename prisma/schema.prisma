@@ -36,103 +36,287 @@ enum Source {
   market_address
 }
 
+enum OwnerShip {
+  self_owned
+  family_member
+  on_lease
+}
+
+enum ActivityType {
+  manual
+  mechanical
+}
+
+enum IrrigationSource {
+  solar_tube_well
+  motor_tube_well
+  canal
+}
+
+enum QuantityUnit {
+  liter
+  kg
+}
+
+enum IssueClassification {
+  disease
+  insect
+  soil
+  water
+  temperature
+}
+
+enum ProductDropDown {
+  Product1
+  Product2
+  Product3
+  Product4
+}
+
+enum Mechanisation {
+  manual
+  machines
+}
+
+// done
 model Farmer {
-  sawie_nr                 Int                 @id @default(autoincrement())
-  name                     String
-  father_name              String              @unique
-  phone                    String
-  state                    String
-  tehsil                   String
-  district                 String
-  farmer_address           String
-  farmer_contact_person_id Int                 @unique
-  super_visor_id           Int                 @unique
-  labour_costs_male        String
-  labour_costs_female      String
+  sawie_nr                 Int            @id @default(autoincrement())
+  name                     String?
+  father_name              String?
+  phone                    String?
+  state                    String?
+  tehsil                   String?
+  district                 String?
+  farmer_address           String?
+  farmer_contact_person_id Int
+  super_visor_id           Int
+  labour_costs_male        String?
+  labour_costs_female      String?
   training                 Training?
   farmer_crop              FarmerCrop[]
   solar_tube_well          SolarTubeWell?
   motor_tube_well          MotorTubeWell?
-  super_visor              SuperVisor          @relation(fields: [super_visor_id], references: [id])
-  farmer_contact_person    FarmerContactPerson @relation(fields: [farmer_contact_person_id], references: [id])
+  Fields                   Fields[]
 }
 
+// done
 model FarmerCrop {
   id                 Int         @id @default(autoincrement())
   farmerSawie_nr     Int
   crop_id            Int
   crop_variety_id    Int
-  date_of_purchasing DateTime
+  date_of_purchasing DateTime    @default(now())
   source             Source
-  total_quantity     Int
-  total_price        Int
-  price_per_kg       Int
+  total_quantity     Int?
+  total_price        Int?
+  price_per_kg       Int?
   farmer             Farmer      @relation(fields: [farmerSawie_nr], references: [sawie_nr])
   crop               Crop        @relation(fields: [crop_id], references: [id])
   crop_variety       CropVariety @relation(fields: [crop_variety_id], references: [id])
 }
 
+// done
 model Crop {
-  id           Int           @id @default(autoincrement())
-  crop_name    String
-  farmer_crop  FarmerCrop[]
-  crop_variety CropVariety[]
+  id          Int          @id @default(autoincrement())
+  crop_name   String?
+  farmer_crop FarmerCrop[]
+  field       Fields[]
+  sowing      Sowing[]
 }
 
+// done
 model CropVariety {
   id           Int          @id @default(autoincrement())
-  variety_name String
-  crop_id      Int
-  crop         Crop         @relation(fields: [crop_id], references: [id])
+  variety_name String?
   FarmerCrop   FarmerCrop[]
+  sowing       Sowing[]
 }
 
+// done
 model FarmerContactPerson {
   id     Int     @id @default(autoincrement())
-  name   String
-  number String
-  Farmer Farmer?
+  name   String?
+  number String?
 }
 
+// done
 model SuperVisor {
   id      Int            @id @default(autoincrement())
   type    SupervisorType
-  name    String
-  number  String
-  company String
-  Farmer  Farmer?
+  name    String?
+  number  String?
+  company String?
 }
 
 model Fields {
   id                               Int                   @id @default(autoincrement())
+  farmerSawie_nr                   Int
   regen_farming                    RegenFarming
   special_farm_storage_aability    SpecialFarmAAbilities
-  special_farm_processing_aability String
-  land_preparation                 String
-  organic_acres_farmed_again       Int
-  area_changed_into_organic        Int
-  traditional_farmed_cotton_area   Int
-  other_farmed_area                Int
-  production_forecast              Int
+  special_farm_processing_aability String?
+  land_preparation                 String?
+  field_address                    String?
+  organic_acres_farmed_again       Int?
+  area_changed_into_organic        Int?
+  traditional_farmed_cotton_area   Int?
+  other_farmed_area                Int?
+  production_forecast              Int?
+  ownership                        OwnerShip
+  rain_water                       String?
+  michung                          String?
+  green_fertilizer                 String?
+  trap_crop                        String?
+  border_crop                      String?
+  trees_at_edge                    String?
+  bio_gas_plant                    String?
+  conversion_of_organisms          String?
+  inter_crop                       String?
+  clear_election                   String?
+  method_of_irrigation             String?
+  mapped_digitalized               String?
+  preparation_of_field_id          Int
+  crop_id                          Int
+  tehsil_id                        Int
+  state_id                         Int
+  district_id                      Int
+  country_id                       Int?
+  preparation_of_field             PreparationOfField[]
+  Irrigation                       Irrigation[]
+  weed                             WeedTreatment[]
+  fertilizer                       Fertilizer[]
+  IssueDetected                    IssueDetected[]
+  disease_and_pest                 DiseaseAndPest[]
+  harvesting                       Harvesting[]
+  farmer                           Farmer                @relation(fields: [farmerSawie_nr], references: [sawie_nr])
+  crop                             Crop                  @relation(fields: [crop_id], references: [id])
+  tehsil                           Tehsils               @relation(fields: [tehsil_id], references: [id])
+  state                            States                @relation(fields: [state_id], references: [id])
+  district                         Districts             @relation(fields: [district_id], references: [id])
+}
+
+model PreparationOfField {
+  id                  Int          @id @default(autoincrement())
+  levelalized         Boolean
+  completion_date     DateTime
+  activities          ActivityType
+  male_labour_hours   Int?
+  female_labour_hours Int?
+  field_id            Int
+  field               Fields       @relation(fields: [field_id], references: [id])
+}
+
+model Sowing {
+  id                  Int         @id @default(autoincrement())
+  sowing_date         DateTime
+  crop_id             Int
+  crop_variety_id     Int
+  male_labour_hours   Int?
+  female_labour_hours Int?
+  kg_sown             Int?
+  price_per_kg        Int?
+  crop                Crop        @relation(fields: [crop_id], references: [id])
+  crop_variety        CropVariety @relation(fields: [crop_variety_id], references: [id])
+}
+
+model Irrigation {
+  id                   Int              @id @default(autoincrement())
+  irrigation_date      DateTime
+  male_labour_hours    Int?
+  female_labour_hours  Int?
+  unit_m3              Int?
+  source_of_irrigation IrrigationSource
+  cost_acre            Int?
+  field_id             Int
+  field                Fields           @relation(fields: [field_id], references: [id])
+}
+
+model WeedTreatment {
+  id                  Int          @id @default(autoincrement())
+  weed_date           Int?
+  activity            String?
+  title_of_product    String?
+  quantity            Int?
+  quantity_unit       QuantityUnit
+  male_labour_hours   Int?
+  female_labour_hours Int?
+  cost_per_acer       Int?
+  field_id            Int
+  field               Fields       @relation(fields: [field_id], references: [id])
+}
+
+model Fertilizer {
+  id                  Int          @id @default(autoincrement())
+  fertilizer_date     Int?
+  male_labour_hours   Int?
+  female_labour_hours Int?
+  type_of_fertilizer  String?
+  quantity            Int?
+  quantity_unit       QuantityUnit
+  fertilizer_cost     Int?
+  cost_per_acer       Int?
+  field_id            Int
+  field               Fields       @relation(fields: [field_id], references: [id])
+}
+
+model IssueDetected {
+  id                   Int                 @id @default(autoincrement())
+  issue_date           Int?
+  issue_name           String?
+  issue_calssification IssueClassification
+  male_labour_hours    Int?
+  female_labour_hours  Int?
+  issue_cost           Int?
+  cost_per_acer        Int?
+  field_id             Int
+  field                Fields              @relation(fields: [field_id], references: [id])
+}
+
+model DiseaseAndPest {
+  id                  Int             @id @default(autoincrement())
+  disease_date        Int?
+  cost                Int?
+  product             ProductDropDown
+  male_labour_hours   Int?
+  female_labour_hours Int?
+  quantity            Int?
+  quantity_unit       QuantityUnit
+  cost_per_acer       Int?
+  field_id            Int
+  field               Fields          @relation(fields: [field_id], references: [id])
+}
+
+model Harvesting {
+  id                     Int           @id @default(autoincrement())
+  est_date_of_harvesting DateTime
+  date_of_completion     DateTime
+  est_yield              Int?
+  harvested_yield        Int?
+  male_labour_hours      Int?
+  female_labour_hours    Int?
+  mechanisation          Mechanisation
+  cost_per_acer          Int?
+  total_cost             Int?
+  field_id               Int
+  field                  Fields        @relation(fields: [field_id], references: [id])
 }
 
 model Training {
-  id             Int    @id @default(autoincrement())
-  month          String
-  topic          String
-  trainer_name   String
-  idea           String
-  farmerSawie_nr Int    @unique
-  farmer         Farmer @relation(fields: [farmerSawie_nr], references: [sawie_nr])
+  id             Int     @id @default(autoincrement())
+  month          String?
+  topic          String?
+  trainer_name   String?
+  idea           String?
+  farmerSawie_nr Int     @unique
+  farmer         Farmer  @relation(fields: [farmerSawie_nr], references: [sawie_nr])
 }
 
 model SolarTubeWell {
   id              Int      @id @default(autoincrement())
   farmerSawie_nr  Int      @unique
   activity_date   DateTime @default(now())
-  repairing_costs Int
-  manageing_hours Int
-  costs_per_hour  Int
+  repairing_costs Int?
+  manageing_hours Int?
+  costs_per_hour  Int?
   farmer          Farmer   @relation(fields: [farmerSawie_nr], references: [sawie_nr])
 }
 
@@ -140,10 +324,63 @@ model MotorTubeWell {
   id              Int      @id @default(autoincrement())
   farmerSawie_nr  Int      @unique
   activity_date   DateTime @default(now())
-  repairing_costs Int
-  manageing_hours Int
-  diesel_quantity Int
-  costs_per_hour  Int
-  costs_per_liter Int
+  repairing_costs Int?
+  manageing_hours Int?
+  diesel_quantity Int?
+  costs_per_hour  Int?
+  costs_per_liter Int?
   farmer          Farmer   @relation(fields: [farmerSawie_nr], references: [sawie_nr])
+}
+
+// done
+
+model Tehsils {
+  id                    Int       @id @default(autoincrement())
+  name                  String?
+  district_id           Int
+  state_id              Int
+  country_id            Int
+  salinity_exposure     Int?
+  salinity_exposure_max Int?
+  arsenic_exposure      Int?
+  arsenic_exposure_max  Int?
+  water_level           Int?
+  water_level_max       Int?
+  tehsil_coordinates    String?   @db.LongText
+  Fields                Fields[]
+  District              Districts @relation(fields: [district_id], references: [id])
+  State                 States    @relation(fields: [state_id], references: [id])
+  Country               Countries @relation(fields: [country_id], references: [id])
+}
+
+// done
+model States {
+  id         Int         @id @default(autoincrement())
+  name       String?
+  country_id Int
+  Districts  Districts[]
+  Tehsils    Tehsils[]
+  Fields     Fields[]
+  Country    Countries   @relation(fields: [country_id], references: [id])
+}
+
+// done
+model Districts {
+  id         Int       @id @default(autoincrement())
+  name       String?
+  state_id   Int
+  country_id Int
+  State      States    @relation(fields: [state_id], references: [id])
+  Country    Countries @relation(fields: [country_id], references: [id])
+  Tehsils    Tehsils[]
+  Fields     Fields[]
+}
+
+// done
+model Countries {
+  id        Int         @id @default(autoincrement())
+  name      String?
+  States    States[]
+  Districts Districts[]
+  Tehsils   Tehsils[]
 }
