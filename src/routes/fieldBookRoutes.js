@@ -22,10 +22,18 @@ router.get('/', async (req, res) => {
         });
         res.json(fields);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({error: error.message});
     }
 });
 
+
+router.post('/', async (req, res) => {
+    try {
+
+    } catch (error) {
+        res.status(500).json({error: error.message});
+    }
+})
 module.exports = router;
 
 

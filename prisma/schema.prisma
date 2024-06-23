@@ -179,7 +179,6 @@ model Fields {
   clear_election                   String?
   method_of_irrigation             String?
   mapped_digitalized               String?
-  preparation_of_field_id          Int
   crop_id                          Int
   tehsil_id                        Int
   state_id                         Int
@@ -198,6 +197,7 @@ model Fields {
   state                            States                @relation(fields: [state_id], references: [id])
   district                         Districts             @relation(fields: [district_id], references: [id])
 }
+
 
 model PreparationOfField {
   id                  Int          @id @default(autoincrement())

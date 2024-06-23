@@ -1,5 +1,4 @@
 // src/routes/farmerBookRoutes.js
-
 const express = require('express');
 const prisma = require('../prismaClient');
 const router = express.Router();
@@ -42,11 +41,350 @@ router.get('/', async (req, res) => {
     }
 });
 
+
+
+
+const { body, validationResult } = require('express-validator');
+
+router.post('/', [
+    body('sawie_nr').isInt(),
+    body('tehsil').isInt(),
+    // Add more validations as needed
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    const farmerData = req.body;
+
+    try {
+        const existingFarmer = await prisma.farmer.findUnique({
+            where: { sawie_nr: farmerData.sawie_nr },
+            include: { Fields: true, farmer_crop: true }
+        });
+
+        if (existingFarmer) {
+            const { sawie_nr, farmer_contact_person_id, super_visor_id, ...updateData } = farmerData;
+
+            const updatedFarmer = await prisma.farmer.update({
+                where: { sawie_nr },
+                data: {
+                    ...updateData,
+                    FarmerContactPerson: farmer_contact_person_id ? {
+                        connect: { id: farmer_contact_person_id }
+                    } : undefined,
+                    supervisor: super_visor_id ? {
+                        connect: { id: super_visor_id }
+                    } : undefined,
+                    training: farmerData.training ? {
+                        update: {
+                            month: farmerData.training.month,
+                            topic: farmerData.training.topic,
+                            trainer_name: farmerData.training.trainer_name,
+                            idea: farmerData.training.idea,
+                        }
+                    } : undefined,
+                    Fields: {
+                        upsert: farmerData.Fields.map(field => ({
+                            where: { id: field.id || 0 },
+                            update: {
+                                ...field,
+                                crop: {
+                                    connect: { id: field.crop_id }
+                                },
+                                tehsil: {
+                                    connect: { id: field.tehsil_id }
+                                },
+                                state: {
+                                    connect: { id: field.state_id }
+                                },
+                                district: {
+                                    connect: { id: field.district_id }
+                                },
+                                preparation_of_field: {
+                                    upsert: field.preparation_of_field.map(preparation => ({
+                                        where: { id: preparation.id || 0 },
+                                        update: { ...preparation },
+                                        create: { ...preparation }
+                                    }))
+                                },
+                                Irrigation: {
+                                    upsert: field.Irrigation.map(irrigation => ({
+                                        where: { id: irrigation.id || 0 },
+                                        update: { ...irrigation },
+                                        create: { ...irrigation }
+                                    }))
+                                },
+                                weed: {
+                                    upsert: field.weed.map(weed => ({
+                                        where: { id: weed.id || 0 },
+                                        update: { ...weed },
+                                        create: { ...weed }
+                                    }))
+                                },
+                                fertilizer: {
+                                    upsert: field.fertilizer.map(fertilizer => ({
+                                        where: { id: fertilizer.id || 0 },
+                                        update: { ...fertilizer },
+                                        create: { ...fertilizer }
+                                    }))
+                                },
+                                IssueDetected: {
+                                    upsert: field.IssueDetected.map(issue => ({
+                                        where: { id: issue.id || 0 },
+                                        update: { ...issue },
+                                        create: { ...issue }
+                                    }))
+                                },
+                                disease_and_pest: {
+                                    upsert: field.disease_and_pest.map(disease => ({
+                                        where: { id: disease.id || 0 },
+                                        update: { ...disease },
+                                        create: { ...disease }
+                                    }))
+                                },
+                                harvesting: {
+                                    upsert: field.harvesting.map(harvest => ({
+                                        where: { id: harvest.id || 0 },
+                                        update: { ...harvest },
+                                        create: { ...harvest }
+                                    }))
+                                },
+                            },
+                            create: {
+                                ...field,
+                                crop: {
+                                    connect: { id: field.crop_id }
+                                },
+                                tehsil: {
+                                    connect: { id: field.tehsil_id }
+                                },
+                                state: {
+                                    connect: { id: field.state_id }
+                                },
+                                district: {
+                                    connect: { id: field.district_id }
+                                },
+                                preparation_of_field: {
+                                    create: field.preparation_of_field
+                                },
+                                Irrigation: {
+                                    create: field.Irrigation
+                                },
+                                weed: {
+                                    create: field.weed
+                                },
+                                fertilizer: {
+                                    create: field.fertilizer
+                                },
+                                IssueDetected: {
+                                    create: field.IssueDetected
+                                },
+                                disease_and_pest: {
+                                    create: field.disease_and_pest
+                                },
+                                harvesting: {
+                                    create: field.harvesting
+                                }
+                            }
+                        }))
+                    },
+                    farmer_crop: {
+                        upsert: farmerData.farmer_crop.map(crop => ({
+                            where: { id: crop.id || 0 },  // Ensure that id is checked
+                            update: {
+                                date_of_purchasing: crop.date_of_purchasing,
+                                source: crop.source,
+                                total_quantity: crop.total_quantity,
+                                total_price: crop.total_price,
+                                price_per_kg: crop.price_per_kg,
+                                crop: {
+                                    connect: { id: crop.crop_id }
+                                },
+                                crop_variety: {
+                                    connect: { id: crop.crop_variety_id }
+                                }
+                            },
+                            create: {
+                                date_of_purchasing: crop.date_of_purchasing,
+                                source: crop.source,
+                                total_quantity: crop.total_quantity,
+                                total_price: crop.total_price,
+                                price_per_kg: crop.price_per_kg,
+                                crop: {
+                                    connect: { id: crop.crop_id }
+                                },
+                                crop_variety: {
+                                    connect: { id: crop.crop_variety_id }
+                                }
+                            }
+                        }))
+                    },
+                    solar_tube_well: farmerData.solar_tube_well ? {
+                        upsert: {
+                            where: { farmerSawie_nr: farmerData.sawie_nr },
+                            update: { ...farmerData.solar_tube_well },
+                            create: { ...farmerData.solar_tube_well }
+                        }
+                    } : undefined,
+                    motor_tube_well: farmerData.motor_tube_well ? {
+                        upsert: {
+                            where: { farmerSawie_nr: farmerData.sawie_nr },
+                            update: { ...farmerData.motor_tube_well },
+                            create: { ...farmerData.motor_tube_well }
+                        }
+                    } : undefined,
+                    supervisor: farmerData.supervisor ? {
+                        connectOrCreate: {
+                            where: { id: farmerData.supervisor.id || 0 },
+                            create: farmerData.supervisor
+                        }
+                    } : undefined,
+                    FarmerContactPerson: farmerData.FarmerContactPerson ? {
+                        connectOrCreate: {
+                            where: { id: farmerData.FarmerContactPerson.id || 0 },
+                            create: farmerData.FarmerContactPerson
+                        }
+                    } : undefined
+                }
+            });
+            res.json(updatedFarmer);
+        } else {
+            // Create new farmer and related fields
+            const newFarmer = await prisma.farmer.create({
+                data: {
+                    ...farmerData,
+                    FarmerContactPerson: farmer_contact_person_id ? {
+                        connect: { id: farmer_contact_person_id }
+                    } : undefined,
+                    supervisor: super_visor_id ? {
+                        connect: { id: super_visor_id }
+                    } : undefined,
+                    training: farmerData.training ? {
+                        create: {
+                            month: farmerData.training.month,
+                            topic: farmerData.training.topic,
+                            trainer_name: farmerData.training.trainer_name,
+                            idea: farmerData.training.idea,
+                        }
+                    } : undefined,
+                    Fields: {
+                        create: farmerData.Fields.map(field => ({
+                            ...field,
+                            crop: {
+                                connect: { id: field.crop_id }
+                            },
+                            tehsil: {
+                                connect: { id: field.tehsil_id }
+                            },
+                            state: {
+                                connect: { id: field.state_id }
+                            },
+                            district: {
+                                connect: { id: field.district_id }
+                            },
+                            preparation_of_field: {
+                                create: field.preparation_of_field
+                            },
+                            Irrigation: {
+                                create: field.Irrigation
+                            },
+                            weed: {
+                                create: field.weed
+                            },
+                            fertilizer: {
+                                create: field.fertilizer
+                            },
+                            IssueDetected: {
+                                create: field.IssueDetected
+                            },
+                            disease_and_pest: {
+                                create: field.disease_and_pest
+                            },
+                            harvesting: {
+                                create: field.harvesting
+                            }
+                        }))
+                    },
+                    farmer_crop: {
+                        create: farmerData.farmer_crop.map(crop => ({
+                            ...crop,
+                            crop: {
+                                connect: { id: crop.crop_id }
+                            },
+                            crop_variety: {
+                                connect: { id: crop.crop_variety_id }
+                            }
+                        }))
+                    },
+                    solar_tube_well: farmerData.solar_tube_well ? {
+                        create: {
+                            ...farmerData.solar_tube_well
+                        }
+                    } : undefined,
+                    motor_tube_well: farmerData.motor_tube_well ? {
+                        create: {
+                            ...farmerData.motor_tube_well
+                        }
+                    } : undefined,
+                    supervisor: farmerData.supervisor ? {
+                        connectOrCreate: {
+                            where: { id: farmerData.supervisor.id || 0 },
+                            create: farmerData.supervisor
+                        }
+                    } : undefined,
+                    FarmerContactPerson: farmerData.FarmerContactPerson ? {
+                        connectOrCreate: {
+                            where: { id: farmerData.FarmerContactPerson.id || 0 },
+                            create: farmerData.FarmerContactPerson
+                        }
+                    } : undefined
+                }
+            });
+            res.json(newFarmer);
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 module.exports = router;
 
 
 
+// API Mock Data
 
+/*{
+    "sawie_nr": 4551,
+    "name": "Ghulam Qadir",
+    "father_name": "Abdul Kareem",
+    "phone": null,
+    "state": null,
+    "tehsil": "160",
+    "district": null,
+    "farmer_address": null,
+    "farmer_contact_person_id": 1,
+    "super_visor_id": 1,
+    "labour_costs_male": null,
+    "labour_costs_female": null,
+    "training": null,
+    "farmer_crop": [],
+    "solar_tube_well": null,
+    "motor_tube_well": null,
+    "Fields": [],
+    "supervisor": {
+        "type": "assistant",
+        "name": "assistant",
+        "number": "assistant",
+        "company": "assistant"
+    },
+    "FarmerContactPerson": {
+        "name": null,
+        "number": null
+    }
+}
+*/
 
 // mock response :
 
