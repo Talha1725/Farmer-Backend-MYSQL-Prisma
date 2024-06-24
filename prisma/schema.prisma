@@ -108,7 +108,7 @@ model FarmerCrop {
   farmerSawie_nr     Int
   crop_id            Int
   crop_variety_id    Int
-  date_of_purchasing DateTime    @default(now())
+  date_of_purchasing String?
   source             Source
   total_quantity     Int?
   total_price        Int?
@@ -191,6 +191,7 @@ model Fields {
   IssueDetected                    IssueDetected[]
   disease_and_pest                 DiseaseAndPest[]
   harvesting                       Harvesting[]
+
   farmer                           Farmer                @relation(fields: [farmerSawie_nr], references: [sawie_nr])
   crop                             Crop                  @relation(fields: [crop_id], references: [id])
   tehsil                           Tehsils               @relation(fields: [tehsil_id], references: [id])
@@ -198,11 +199,10 @@ model Fields {
   district                         Districts             @relation(fields: [district_id], references: [id])
 }
 
-
 model PreparationOfField {
   id                  Int          @id @default(autoincrement())
   levelalized         Boolean
-  completion_date     DateTime
+  completion_date     String?
   activities          ActivityType
   male_labour_hours   Int?
   female_labour_hours Int?
@@ -212,7 +212,7 @@ model PreparationOfField {
 
 model Sowing {
   id                  Int         @id @default(autoincrement())
-  sowing_date         DateTime
+  sowing_date         String?
   crop_id             Int
   crop_variety_id     Int
   male_labour_hours   Int?
@@ -225,7 +225,7 @@ model Sowing {
 
 model Irrigation {
   id                   Int              @id @default(autoincrement())
-  irrigation_date      DateTime
+  irrigation_date      String?
   male_labour_hours    Int?
   female_labour_hours  Int?
   unit_m3              Int?
@@ -292,8 +292,8 @@ model DiseaseAndPest {
 
 model Harvesting {
   id                     Int           @id @default(autoincrement())
-  est_date_of_harvesting DateTime
-  date_of_completion     DateTime
+  est_date_of_harvesting Int?
+  date_of_completion     Int?
   est_yield              Int?
   harvested_yield        Int?
   male_labour_hours      Int?
@@ -316,25 +316,25 @@ model Training {
 }
 
 model SolarTubeWell {
-  id              Int      @id @default(autoincrement())
-  farmerSawie_nr  Int      @unique
-  activity_date   DateTime @default(now())
+  id              Int     @id @default(autoincrement())
+  farmerSawie_nr  Int     @unique
+  activity_date   String?
   repairing_costs Int?
   manageing_hours Int?
   costs_per_hour  Int?
-  farmer          Farmer   @relation(fields: [farmerSawie_nr], references: [sawie_nr])
+  farmer          Farmer  @relation(fields: [farmerSawie_nr], references: [sawie_nr])
 }
 
 model MotorTubeWell {
-  id              Int      @id @default(autoincrement())
-  farmerSawie_nr  Int      @unique
-  activity_date   DateTime @default(now())
+  id              Int     @id @default(autoincrement())
+  farmerSawie_nr  Int     @unique
+  activity_date   String?
   repairing_costs Int?
   manageing_hours Int?
   diesel_quantity Int?
   costs_per_hour  Int?
   costs_per_liter Int?
-  farmer          Farmer   @relation(fields: [farmerSawie_nr], references: [sawie_nr])
+  farmer          Farmer  @relation(fields: [farmerSawie_nr], references: [sawie_nr])
 }
 
 // done
