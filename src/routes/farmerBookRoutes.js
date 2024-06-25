@@ -173,8 +173,6 @@ router.post('/', async (req, res) => {
 										id: preparation.id,
 									}
 								})
-								
-								
 							}
 							console.log('existingPreparation:', existingPreparation)
 							if (existingPreparation.length > 0) {
