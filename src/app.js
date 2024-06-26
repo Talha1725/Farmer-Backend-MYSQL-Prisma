@@ -2,7 +2,7 @@ const express = require('express');
 const farmerBookRoutes = require('./routes/farmerBookRoutes');
 const fieldBookRoutes = require('./routes/fieldBookRoutes');
 const testingRoutes = require('./routes/testingRoutes');
-const analysisRoutes = require('./routes/testingRoutes');
+const analysisRoutes = require('./routes/analysisRoutes');
 
 const app = express();
 

@@ -5,22 +5,18 @@ const router = express.Router();
 router.get('/', async (req, res) => {
 	try {
 		const fields = await prisma.fields.findMany({
-			// where:{
-			// 	id:7598
-			// },
 			include: {
-				farmer: true,
-				preparation_of_field: true,
-				Irrigation: true,
-				weed: true,
-				fertilizer: true,
-				IssueDetected: true,
-				disease_and_pest: true,
-				harvesting: true,
-				crop: true,
-				tehsil: true,
-				state: true,
-				district: true,
+				Farmer: true,                   // Includes related Farmer data
+				PreparationOfField: true,       // Includes related PreparationOfField data
+				Irrigation: true,               // Includes related Irrigation data
+				WeedTreatment: true,            // Includes related WeedTreatment data
+				Fertilizer: true,               // Includes related Fertilizer data
+				IssueDetected: true,            // Includes related IssueDetected data
+				DiseaseAndPest: true,           // Includes related DiseaseAndPest data
+				Harvesting: true,               // Includes related Harvesting data
+				Districts: true,                // Includes related Districts data
+				States: true,                   // Includes related States data
+				Tehsils: true,                  // Includes related Tehsils data
 			}
 		});
 		res.json(fields);
@@ -39,18 +35,17 @@ router.post('/', async (req, res) => {
 				where: {
 					id: fieldData.id,
 				}, include: {
-					farmer: true,
-					preparation_of_field: true,
-					Irrigation: true,
-					weed: true,
-					fertilizer: true,
-					IssueDetected: true,
-					disease_and_pest: true,
-					harvesting: true,
-					crop: true,
-					tehsil: true,
-					state: true,
-					district: true,
+					Farmer: true,                   // Includes related Farmer data
+					PreparationOfField: true,       // Includes related PreparationOfField data
+					Irrigation: true,               // Includes related Irrigation data
+					WeedTreatment: true,            // Includes related WeedTreatment data
+					Fertilizer: true,               // Includes related Fertilizer data
+					IssueDetected: true,            // Includes related IssueDetected data
+					DiseaseAndPest: true,           // Includes related DiseaseAndPest data
+					Harvesting: true,               // Includes related Harvesting data
+					Districts: true,                // Includes related Districts data
+					States: true,                   // Includes related States data
+					Tehsils: true,                  // Includes related Tehsils data
 				}
 			});
 		}

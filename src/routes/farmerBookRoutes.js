@@ -43,29 +43,36 @@ router.post('/', async (req, res) => {
 		const farmerQuery = await prisma.farmer.findMany({
 			where: {
 				sawie_nr: farmData?.sawie_nr
-			}, include: {
-				training: true, farmer_crop: {
+			},
+			include: {
+				MotorTubeWell: true,          // Assuming this is the correct relation name
+				SolarTubeWell: true,          // Assuming this is the correct relation name
+				FarmerCrop: {
 					include: {
-						crop: true, crop_variety: true
+						Crop: true,               // Assuming 'Crop' is correctly defined
+						CropVariety: true         // Assuming 'CropVariety' is correctly defined
 					}
-				}, solar_tube_well: true, motor_tube_well: true, Fields: {
+				},
+				Fields: {
 					include: {
-						preparation_of_field: true,
+						PreparationOfField: true, // Adjusted for correct naming
 						Irrigation: true,
-						weed: true,
-						fertilizer: true,
+						WeedTreatment: true,      // Adjusted for correct naming
+						Fertilizer: true,
 						IssueDetected: true,
-						disease_and_pest: true,
-						harvesting: true,
-						crop: true,
-						tehsil: true,
-						state: true,
-						district: true,
+						DiseaseAndPest: true,     // Adjusted for correct naming
+						Harvesting: true,
+						Districts: true,          // Adjusted for correct naming
+						States: true,             // Adjusted for correct naming
+						Tehsils: true             // Adjusted for correct naming
 					}
-				}, supervisor: true, FarmerContactPerson: true
+				},
+				SuperVisor: true,            // Adjusted for correct naming
+				FarmerContactPerson: true    // Assuming this is correctly defined
 			}
 		});
 		
+		console.log('farmerQuery : ', farmerQuery)
 		// If farmer data exists, compare and update as necessary
 		if (farmerQuery.length > 0) {
 			const farmer = farmerQuery[0];
@@ -260,7 +267,7 @@ router.post('/', async (req, res) => {
 							}
 							console.log('existingWeed:', existingWeed)
 							
-							if (existingWeed.length > 0) {
+							if (existingWeed) {
 								const updatedWeedData = {};
 								existingWeed2 = existingWeed[0]
 								if (existingWeed2.weed_date !== weed.weed_date) updatedWeedData.weed_date = weed.weed_date;
@@ -302,7 +309,7 @@ router.post('/', async (req, res) => {
 							}
 							console.log('existingFertilizer:', existingFertilizer2)
 							
-							if (existingFertilizer2.length > 0) {
+							if (existingFertilizer2) {
 								const updatedFertilizerData = {};
 								existingFertilizer = existingFertilizer2[0]
 								if (existingFertilizer.fertilizer_date !== fertilizer.fertilizer_date) updatedFertilizerData.fertilizer_date = fertilizer.fertilizer_date;
@@ -346,7 +353,7 @@ router.post('/', async (req, res) => {
 							}
 							
 							console.log('existingIssue', existingIssue2)
-							if (existingIssue2.length > 0) {
+							if (existingIssue2) {
 								const updatedIssueData = {};
 								existingIssue = existingIssue2[0]
 								if (existingIssue.issue_date !== issue.issue_date) updatedIssueData.issue_date = issue.issue_date;
@@ -385,7 +392,7 @@ router.post('/', async (req, res) => {
 								});
 							}
 							console.log('existingDisease', existingDisease2)
-							if (existingDisease2.length > 0) {
+							if (existingDisease2) {
 								const updatedDiseaseData = {};
 								existingDisease = existingDisease2[0]
 								if (existingDisease.disease_date !== disease.disease_date) updatedDiseaseData.disease_date = disease.disease_date;
@@ -425,7 +432,7 @@ router.post('/', async (req, res) => {
 								});
 							}
 							console.log('existingHarvest', existingHarvest2)
-							if (existingHarvest2.length > 0) {
+							if (existingHarvest2) {
 								const updatedHarvestData = {};
 								existingHarvest = existingHarvest2[0]
 								if (existingHarvest.est_date_of_harvesting !== harvest.est_date_of_harvesting) updatedHarvestData.est_date_of_harvesting = harvest.est_date_of_harvesting;
@@ -458,10 +465,10 @@ router.post('/', async (req, res) => {
 			
 			// Update supervisor
 			const updatedSupervisorData = {};
-			if (farmer.supervisor.type !== farmData.supervisor.type) updatedSupervisorData.type = farmData.supervisor.type;
-			if (farmer.supervisor.name !== farmData.supervisor.name) updatedSupervisorData.name = farmData.supervisor.name;
-			if (farmer.supervisor.number !== farmData.supervisor.number) updatedSupervisorData.number = farmData.supervisor.number;
-			if (farmer.supervisor.company !== farmData.supervisor.company) updatedSupervisorData.company = farmData.supervisor.company;
+			if (farmer.SuperVisor.type !== farmData.supervisor.type) updatedSupervisorData.type = farmData.supervisor.type;
+			if (farmer.SuperVisor.name !== farmData.supervisor.name) updatedSupervisorData.name = farmData.supervisor.name;
+			if (farmer.SuperVisor.number !== farmData.supervisor.number) updatedSupervisorData.number = farmData.supervisor.number;
+			if (farmer.SuperVisor.company !== farmData.supervisor.company) updatedSupervisorData.company = farmData.supervisor.company;
 			console.log('updatedSupervisorData : ', updatedSupervisorData)
 			
 			if (Object.keys(updatedSupervisorData).length > 0) {
