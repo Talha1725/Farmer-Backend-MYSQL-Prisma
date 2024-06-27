@@ -7,25 +7,30 @@ router.get('/', async (req, res) => {
 	try {
 		const farmers = await prisma.farmer.findMany({
 			include: {
-				training: true, farmer_crop: {
+				MotorTubeWell: true,          // Assuming this is the correct relation name
+				SolarTubeWell: true,          // Assuming this is the correct relation name
+				FarmerCrop: {
 					include: {
-						crop: true, crop_variety: true
+						Crop: true,               // Assuming 'Crop' is correctly defined
+						CropVariety: true         // Assuming 'CropVariety' is correctly defined
 					}
-				}, solar_tube_well: true, motor_tube_well: true, Fields: {
+				},
+				Fields: {
 					include: {
-						preparation_of_field: true,
+						PreparationOfField: true, // Adjusted for correct naming
 						Irrigation: true,
-						weed: true,
-						fertilizer: true,
+						WeedTreatment: true,      // Adjusted for correct naming
+						Fertilizer: true,
 						IssueDetected: true,
-						disease_and_pest: true,
-						harvesting: true,
-						crop: true,
-						tehsil: true,
-						state: true,
-						district: true,
+						DiseaseAndPest: true,     // Adjusted for correct naming
+						Harvesting: true,
+						Districts: true,          // Adjusted for correct naming
+						States: true,             // Adjusted for correct naming
+						Tehsils: true             // Adjusted for correct naming
 					}
-				}, supervisor: true, FarmerContactPerson: true
+				},
+				SuperVisor: true,            // Adjusted for correct naming
+				FarmerContactPerson: true    // Assuming this is correctly defined
 			}
 		});
 		res.json(farmers);
