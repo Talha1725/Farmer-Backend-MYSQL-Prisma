@@ -1,24 +1,23 @@
 function calculateCostsByCategory(dataArray) {
-	let totalIrrigationCost = 0;
-	let totalWeedManagementCost = 0;
-	let totalFertilizerCost = 0;
-	let totalIssueDetectedCost = 0;
-	let totalDiseaseAndPestCost = 0;
-	let totalHarvestingCost = 0;
-	let totalMaleLaborCost = 0;
-	let totalFemaleLaborCost = 0;
+	let totalIrrigationCost = 0, totalWeedManagementCost = 0, totalFertilizerCost = 0,
+		totalIssueDetectedCost = 0, totalDiseaseAndPestCost = 0, totalHarvestingCost = 0,
+		totalMaleLaborCost = 0, totalFemaleLaborCost = 0;
+	
+	let totalAreaForIrrigation = 0, totalAreaForWeedManagement = 0, totalAreaForFertilization = 0,
+		totalAreaForIssueDetection = 0, totalAreaForDiseaseAndPest = 0, totalAreaForHarvesting = 0;
 	
 	dataArray.forEach(data => {
 		// Extract labor rates from the farmer object
-		const maleLaborRate = data.Farmer.labour_costs_male
-		const femaleLaborRate = data.Farmer.labour_costs_female
+		const maleLaborRate = data.Farmer.labour_costs_male || 1;
+		const femaleLaborRate = data.Farmer.labour_costs_female || 1;
 		
-		// Calculate costs for each category
+		// Calculate costs and track areas for each category
 		if (data.Irrigation) {
 			data.Irrigation.forEach(item => {
 				totalIrrigationCost += item.cost_acre;
 				totalMaleLaborCost += item.male_labour_hours * maleLaborRate;
 				totalFemaleLaborCost += item.female_labour_hours * femaleLaborRate;
+				totalAreaForIrrigation += parseFloat(data.total_area);
 			});
 		}
 		
@@ -27,6 +26,7 @@ function calculateCostsByCategory(dataArray) {
 				totalWeedManagementCost += item.cost_per_acer;
 				totalMaleLaborCost += item.male_labour_hours * maleLaborRate;
 				totalFemaleLaborCost += item.female_labour_hours * femaleLaborRate;
+				totalAreaForWeedManagement += parseFloat(data.total_area);
 			});
 		}
 		
@@ -35,6 +35,7 @@ function calculateCostsByCategory(dataArray) {
 				totalFertilizerCost += item.fertilizer_cost;
 				totalMaleLaborCost += item.male_labour_hours * maleLaborRate;
 				totalFemaleLaborCost += item.female_labour_hours * femaleLaborRate;
+				totalAreaForFertilization += parseFloat(data.total_area);
 			});
 		}
 		
@@ -43,6 +44,7 @@ function calculateCostsByCategory(dataArray) {
 				totalIssueDetectedCost += item.issue_cost;
 				totalMaleLaborCost += item.male_labour_hours * maleLaborRate;
 				totalFemaleLaborCost += item.female_labour_hours * femaleLaborRate;
+				totalAreaForIssueDetection += parseFloat(data.total_area);
 			});
 		}
 		
@@ -51,6 +53,7 @@ function calculateCostsByCategory(dataArray) {
 				totalDiseaseAndPestCost += item.cost;
 				totalMaleLaborCost += item.male_labour_hours * maleLaborRate;
 				totalFemaleLaborCost += item.female_labour_hours * femaleLaborRate;
+				totalAreaForDiseaseAndPest += parseFloat(data.total_area);
 			});
 		}
 		
@@ -59,23 +62,37 @@ function calculateCostsByCategory(dataArray) {
 				totalHarvestingCost += item.total_cost;
 				totalMaleLaborCost += item.male_labour_hours * maleLaborRate;
 				totalFemaleLaborCost += item.female_labour_hours * femaleLaborRate;
+				totalAreaForHarvesting += parseFloat(data.total_area);
 			});
 		}
 	});
 	
+	// Calculate weighted averages
+	const weightedAverageIrrigation = totalIrrigationCost / totalAreaForIrrigation;
+	const weightedAverageWeedManagement = totalWeedManagementCost / totalAreaForWeedManagement;
+	const weightedAverageFertilization = totalFertilizerCost / totalAreaForFertilization;
+	const weightedAverageIssueDetection = totalIssueDetectedCost / totalAreaForIssueDetection;
+	const weightedAverageDiseaseAndPest = totalDiseaseAndPestCost / totalAreaForDiseaseAndPest;
+	const weightedAverageHarvesting = totalHarvestingCost / totalAreaForHarvesting;
+	
 	return {
 		totalIrrigationCost,
+		weightedAverageIrrigation,
 		totalWeedManagementCost,
+		weightedAverageWeedManagement,
 		totalFertilizerCost,
+		weightedAverageFertilization,
 		totalIssueDetectedCost,
+		weightedAverageIssueDetection,
 		totalDiseaseAndPestCost,
+		weightedAverageDiseaseAndPest,
 		totalHarvestingCost,
-		totalMaleLaborCost,
-		totalFemaleLaborCost
+		weightedAverageHarvesting,
+		totalMaleLaborCost, // Note: Labor cost does not typically use area for weighting
+		totalFemaleLaborCost // Note: Labor cost does not typically use area for weighting
 	};
 }
 
-// Example usage
 module.exports = {
 	calculateCostsByCategory
 };
