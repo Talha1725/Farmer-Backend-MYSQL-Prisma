@@ -7,30 +7,30 @@ router.get('/', async (req, res) => {
 	try {
 		const farmers = await prisma.farmer.findMany({
 			include: {
-				MotorTubeWell: true,          // Assuming this is the correct relation name
-				SolarTubeWell: true,          // Assuming this is the correct relation name
+				MotorTubeWell: true,
+				SolarTubeWell: true,
 				FarmerCrop: {
 					include: {
-						Crop: true,               // Assuming 'Crop' is correctly defined
-						CropVariety: true         // Assuming 'CropVariety' is correctly defined
+						Crop: true,
+						CropVariety: true
 					}
 				},
 				Fields: {
 					include: {
-						preparation_of_field: true, // Adjusted for correct naming
+						preparation_of_field: true, // Updated to match schema field name
 						Irrigation: true,
-						weed: true,      // Adjusted for correct naming
+						weed: true, // Updated to match schema field name
 						fertilizer: true,
 						IssueDetected: true,
-						disease_and_pest: true,     // Adjusted for correct naming
-						harvesting: true,
+						disease_and_pest: true, // Updated to match schema field name
+						harvesting: true, // Updated to match schema field name
 						Districts: true,          // Adjusted for correct naming
 						States: true,             // Adjusted for correct naming
-						Tehsils: true             // Adjusted for correct naming
+						Tehsils: true
 					}
 				},
-				SuperVisor: true,            // Adjusted for correct naming
-				FarmerContactPerson: true    // Assuming this is correctly defined
+				SuperVisor: true,
+				FarmerContactPerson: true
 			}
 		});
 		res.json(farmers);
@@ -38,6 +38,7 @@ router.get('/', async (req, res) => {
 		res.status(500).json({error: error.message});
 	}
 });
+
 
 router.post('/', async (req, res) => {
 	var alreadyExistField = false;
