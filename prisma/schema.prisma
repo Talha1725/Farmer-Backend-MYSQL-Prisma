@@ -164,17 +164,17 @@ model Fields {
   present_crop_v                   String?
   prev_crop                        String?
   prev_crop_v                      String?
-  DiseaseAndPest                   DiseaseAndPest[]
-  Fertilizer                       Fertilizer[]
+  disease_and_pest                 DiseaseAndPest[]
+  fertilizer                       Fertilizer[]
   Districts                        Districts                            @relation(fields: [district_id], references: [id])
   Farmer                           Farmer                               @relation(fields: [farmerSawie_nr], references: [sawie_nr])
   States                           States                               @relation(fields: [state_id], references: [id])
   Tehsils                          Tehsils                              @relation(fields: [tehsil_id], references: [id])
-  Harvesting                       Harvesting[]
+  harvesting                       Harvesting[]
   Irrigation                       Irrigation[]
   IssueDetected                    IssueDetected[]
-  PreparationOfField               PreparationOfField[]
-  WeedTreatment                    WeedTreatment[]
+  preparation_of_field             PreparationOfField[]
+  weed                             WeedTreatment[]
 
   @@index([crop_id], map: "Fields_crop_id_fkey")
   @@index([district_id], map: "Fields_district_id_fkey")

@@ -17,13 +17,13 @@ router.get('/', async (req, res) => {
 				},
 				Fields: {
 					include: {
-						PreparationOfField: true, // Adjusted for correct naming
+						preparation_of_field: true, // Adjusted for correct naming
 						Irrigation: true,
-						WeedTreatment: true,      // Adjusted for correct naming
-						Fertilizer: true,
+						weed: true,      // Adjusted for correct naming
+						fertilizer: true,
 						IssueDetected: true,
-						DiseaseAndPest: true,     // Adjusted for correct naming
-						Harvesting: true,
+						disease_and_pest: true,     // Adjusted for correct naming
+						harvesting: true,
 						Districts: true,          // Adjusted for correct naming
 						States: true,             // Adjusted for correct naming
 						Tehsils: true             // Adjusted for correct naming
@@ -60,13 +60,13 @@ router.post('/', async (req, res) => {
 				},
 				Fields: {
 					include: {
-						PreparationOfField: true, // Adjusted for correct naming
+						preparation_of_field: true, // Adjusted for correct naming
 						Irrigation: true,
-						WeedTreatment: true,      // Adjusted for correct naming
-						Fertilizer: true,
+						weed: true,      // Adjusted for correct naming
+						fertilizer: true,
 						IssueDetected: true,
-						DiseaseAndPest: true,     // Adjusted for correct naming
-						Harvesting: true,
+						disease_and_pest: true,     // Adjusted for correct naming
+						harvesting: true,
 						Districts: true,          // Adjusted for correct naming
 						States: true,             // Adjusted for correct naming
 						Tehsils: true             // Adjusted for correct naming
@@ -174,7 +174,7 @@ router.post('/', async (req, res) => {
 						
 					}
 					
-					// Check and update PreparationOfField
+					// Check and update preparation_of_field
 					if (field.preparation_of_field) {
 						for (const preparation of field.preparation_of_field) {
 							var existingPreparation = [];
@@ -301,44 +301,44 @@ router.post('/', async (req, res) => {
 						}
 					}
 					
-					// Check and update Fertilizer
+					// Check and update fertilizer
 					if (field.fertilizer) {
 						for (const fertilizer of field.fertilizer) {
-							var existingFertilizer = []
+							var existingfertilizer = []
 							if (fertilizer.id) {
-								var existingFertilizer2 = await prisma.fertilizer.findMany({
+								var existingfertilizer2 = await prisma.fertilizer.findMany({
 									where: {
 										id: fertilizer.id
 									}
 								});
 							}
-							console.log('existingFertilizer:', existingFertilizer2)
+							console.log('existingfertilizer:', existingfertilizer2)
 							
-							if (existingFertilizer2) {
-								const updatedFertilizerData = {};
-								existingFertilizer = existingFertilizer2[0]
-								if (existingFertilizer.fertilizer_date !== fertilizer.fertilizer_date) updatedFertilizerData.fertilizer_date = fertilizer.fertilizer_date;
-								if (existingFertilizer.male_labour_hours !== fertilizer.male_labour_hours) updatedFertilizerData.male_labour_hours = fertilizer.male_labour_hours;
-								if (existingFertilizer.female_labour_hours !== fertilizer.female_labour_hours) updatedFertilizerData.female_labour_hours = fertilizer.female_labour_hours;
-								if (existingFertilizer.type_of_fertilizer !== fertilizer.type_of_fertilizer) updatedFertilizerData.type_of_fertilizer = fertilizer.type_of_fertilizer;
-								if (existingFertilizer.quantity !== fertilizer.quantity) updatedFertilizerData.quantity = fertilizer.quantity;
-								if (existingFertilizer.quantity_unit !== fertilizer.quantity_unit) updatedFertilizerData.quantity_unit = fertilizer.quantity_unit;
-								if (existingFertilizer.fertilizer_cost !== fertilizer.fertilizer_cost) updatedFertilizerData.fertilizer_cost = fertilizer.fertilizer_cost;
-								if (existingFertilizer.cost_per_acer !== fertilizer.cost_per_acer) updatedFertilizerData.cost_per_acer = fertilizer.cost_per_acer;
+							if (existingfertilizer2) {
+								const updatedfertilizerData = {};
+								existingfertilizer = existingfertilizer2[0]
+								if (existingfertilizer.fertilizer_date !== fertilizer.fertilizer_date) updatedfertilizerData.fertilizer_date = fertilizer.fertilizer_date;
+								if (existingfertilizer.male_labour_hours !== fertilizer.male_labour_hours) updatedfertilizerData.male_labour_hours = fertilizer.male_labour_hours;
+								if (existingfertilizer.female_labour_hours !== fertilizer.female_labour_hours) updatedfertilizerData.female_labour_hours = fertilizer.female_labour_hours;
+								if (existingfertilizer.type_of_fertilizer !== fertilizer.type_of_fertilizer) updatedfertilizerData.type_of_fertilizer = fertilizer.type_of_fertilizer;
+								if (existingfertilizer.quantity !== fertilizer.quantity) updatedfertilizerData.quantity = fertilizer.quantity;
+								if (existingfertilizer.quantity_unit !== fertilizer.quantity_unit) updatedfertilizerData.quantity_unit = fertilizer.quantity_unit;
+								if (existingfertilizer.fertilizer_cost !== fertilizer.fertilizer_cost) updatedfertilizerData.fertilizer_cost = fertilizer.fertilizer_cost;
+								if (existingfertilizer.cost_per_acer !== fertilizer.cost_per_acer) updatedfertilizerData.cost_per_acer = fertilizer.cost_per_acer;
 								
-								if (Object.keys(updatedFertilizerData).length > 0) {
+								if (Object.keys(updatedfertilizerData).length > 0) {
 									await prisma.fertilizer.update({
-										where: {id: fertilizer.id}, data: {...updatedFertilizerData, field_id: field.id}
+										where: {id: fertilizer.id}, data: {...updatedfertilizerData, field_id: field.id}
 									});
 								}
 							} else {
 								
-								const addedFertilizer = await prisma.fertilizer.create({
+								const addedfertilizer = await prisma.fertilizer.create({
 									data: {
 										...fertilizer, field_id: existingField ? existingField.id : addedField.id
 									}
 								});
-								console.log('addedFertilizer:', addedFertilizer)
+								console.log('addedfertilizer:', addedfertilizer)
 							}
 						}
 					}
@@ -375,17 +375,17 @@ router.post('/', async (req, res) => {
 									});
 								}
 							} else {
-								const addedFertilizer = await prisma.issueDetected.create({
+								const addedfertilizer = await prisma.issueDetected.create({
 									data: {
 										...issue, field_id: existingField ? existingField.id : addedField.id
 									}
 								});
-								console.log('addedIssue :', addedFertilizer)
+								console.log('addedIssue :', addedfertilizer)
 							}
 						}
 					}
 					
-					// Check and update DiseaseAndPest
+					// Check and update disease_and_pest
 					if (field.disease_and_pest) {
 						for (const disease of field.disease_and_pest) {
 							var existingDisease = []
@@ -425,7 +425,7 @@ router.post('/', async (req, res) => {
 						}
 					}
 					
-					// Check and update Harvesting
+					// Check and update harvesting
 					if (field.harvesting) {
 						for (const harvest of field.harvesting) {
 							var existingHarvest = []
@@ -456,12 +456,12 @@ router.post('/', async (req, res) => {
 									});
 								}
 							} else {
-								const addedHarvesting = await prisma.harvesting.create({
+								const addedharvesting = await prisma.harvesting.create({
 									data: {
 										...harvest, field_id: existingField ? existingField.id : addedField.id
 									}
 								});
-								console.log('addedHarvesting :', addedHarvesting)
+								console.log('addedharvesting :', addedharvesting)
 							}
 						}
 					}
