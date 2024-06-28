@@ -44,8 +44,9 @@ router.post('/', async (req, res) => {
 		
 		let costs = calculateCostsByCategory(fields);
 		console.log("Cost Breakdown:", costs);
-
-		res.status(200).json({costs: costs, FilterID: FilterID.id, results: fields});
+		
+		// res.status(200).json({costs: costs, FilterID: FilterID.id, results: fields});
+		res.status(200).json({costs: costs});
 	} catch (error) {
 		console.log('Error:', error);
 		res.status(400).json({error: error.message});
