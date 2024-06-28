@@ -160,6 +160,10 @@ model Fields {
   farmerSawie_nr                   Int
   field_name                       String?
   total_area                       String?
+  present_crop                     String?
+  present_crop_v                   String?
+  prev_crop                        String?
+  prev_crop_v                      String?
   DiseaseAndPest                   DiseaseAndPest[]
   Fertilizer                       Fertilizer[]
   Districts                        Districts                            @relation(fields: [district_id], references: [id])
@@ -339,13 +343,12 @@ model WeedTreatment {
   quantity_unit       WeedTreatment_quantity_unit
   male_labour_hours   Int?
   female_labour_hours Int?
-  cost_pers_acer       Int?
+  cost_pers_acer      Int?
   field_id            Int
   Fields              Fields                      @relation(fields: [field_id], references: [id])
 
   @@index([field_id], map: "WeedTreatment_field_id_fkey")
 }
-
 
 enum Fields_regen_farming {
   registered

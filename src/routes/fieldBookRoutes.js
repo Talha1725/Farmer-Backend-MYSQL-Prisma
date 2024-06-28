@@ -141,6 +141,21 @@ router.post('/', async (req, res) => {
 			if (field.country_id !== fieldData.country_id) {
 				updatedFieldData.country_id = fieldData.country_id;
 			}
+			if (field.present_crop !== fieldData.present_crop) {
+				updatedFieldData.present_crop = fieldData.present_crop;
+			}
+			if (field.present_crop_v !== fieldData.present_crop_v) {
+				updatedFieldData.present_crop_v = fieldData.present_crop_v;
+			}
+			if (field.prev_crop !== fieldData.prev_crop) {
+				updatedFieldData.prev_crop = fieldData.prev_crop;
+			}
+			if (field.prev_crop_v !== fieldData.prev_crop_v) {
+				updatedFieldData.prev_crop_v = fieldData.prev_crop_v;
+			}
+			if (field.field_name !== fieldData.field_name) {
+				updatedFieldData.field_name = fieldData.field_name;
+			}
 			
 			console.log('updatedFieldData', updatedFieldData);
 			if (Object.keys(updatedFieldData).length > 0) {
@@ -513,7 +528,7 @@ router.post('/', async (req, res) => {
 					console.log('newCrop:', newCrop)
 					
 				}
-	www
+				www
 			}
 			
 			
