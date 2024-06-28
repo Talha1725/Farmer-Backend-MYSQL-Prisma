@@ -28,13 +28,13 @@ router.post('/', async (req, res) => {
 		const fields = await prisma.fields.findMany({
 			where: condition, include: {
 				Farmer: true,                   // Includes related Farmer data
-				PreparationOfField: true,       // Includes related PreparationOfField data
+				preparation_of_field: true,       // Includes related PreparationOfField data
 				Irrigation: true,               // Includes related Irrigation data
-				WeedTreatment: true,            // Includes related WeedTreatment data
-				Fertilizer: true,               // Includes related Fertilizer data
+				weed: true,            // Includes related WeedTreatment data
+				fertilizer: true,               // Includes related Fertilizer data
 				IssueDetected: true,            // Includes related IssueDetected data
-				DiseaseAndPest: true,           // Includes related DiseaseAndPest data
-				Harvesting: true,               // Includes related Harvesting data
+				disease_and_pest: true,           // Includes related DiseaseAndPest data
+				harvesting: true,               // Includes related Harvesting data
 				Districts: true,                // Includes related Districts data
 				States: true,                   // Includes related States data
 				Tehsils: true,                  // Includes related Tehsils data
