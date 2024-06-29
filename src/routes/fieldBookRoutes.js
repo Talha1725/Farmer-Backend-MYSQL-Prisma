@@ -213,8 +213,7 @@ router.post('/', async (req, res) => {
 					
 				}
 				
-			}
-			else {
+			} else {
 				console.log('Farmer does not exist')
 			}
 			
@@ -289,7 +288,7 @@ router.post('/', async (req, res) => {
 							});
 						}
 					} else {
-						
+
 						const addedIrrigation = await prisma.irrigation.create({
 							data: {
 								...irrigation, field_id: field.id
@@ -553,6 +552,7 @@ router.post('/', async (req, res) => {
 			} else {
 				console.log('There was no crop data')
 			}
+			
 			
 			res.status(200).json({success: true})
 		} else {
