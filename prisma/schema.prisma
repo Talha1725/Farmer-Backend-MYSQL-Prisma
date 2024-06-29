@@ -348,7 +348,7 @@ model WeedTreatment {
   quantity_unit       String?
   male_labour_hours   Int?
   female_labour_hours Int?
-  cost_per_acer      Int?
+  cost_pers_acer      Int?
   field_id            Int
   Fields              Fields  @relation(fields: [field_id], references: [id])
 
