@@ -32,7 +32,7 @@ model CropVariety {
 
 model DiseaseAndPest {
   id                  Int     @id @default(autoincrement())
-  disease_date        Int?
+  disease_date        String?
   cost                Int?
   product             String?
   male_labour_hours   Int?
@@ -113,7 +113,7 @@ model FarmerCrop {
 
 model Fertilizer {
   id                  Int     @id @default(autoincrement())
-  fertilizer_date     Int?
+  fertilizer_date     String?
   male_labour_hours   Int?
   female_labour_hours Int?
   type_of_fertilizer  String?
@@ -218,7 +218,7 @@ model Irrigation {
 
 model IssueDetected {
   id                   Int     @id @default(autoincrement())
-  issue_date           Int?
+  issue_date           String?
   issue_name           String?
   issue_calssification String?
   male_labour_hours    Int?
@@ -341,7 +341,7 @@ model Training {
 
 model WeedTreatment {
   id                  Int     @id @default(autoincrement())
-  weed_date           Int?
+  weed_date           String?
   activity            String?
   title_of_product    String?
   quantity            Int?
