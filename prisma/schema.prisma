@@ -175,6 +175,7 @@ model Fields {
   IssueDetected                    IssueDetected[]
   preparation_of_field             PreparationOfField[]
   weed                             WeedTreatment[]
+  sowing                           Sowing[]
 
   @@index([crop_id], map: "Fields_crop_id_fkey")
   @@index([district_id], map: "Fields_district_id_fkey")
@@ -275,6 +276,8 @@ model Sowing {
   price_per_kg        Int?
   Crop                Crop        @relation(fields: [crop_id], references: [id])
   CropVariety         CropVariety @relation(fields: [crop_variety_id], references: [id])
+  Fields              Fields?     @relation(fields: [fieldsId], references: [id])
+  fieldsId            Int?
 
   @@index([crop_id], map: "Sowing_crop_id_fkey")
   @@index([crop_variety_id], map: "Sowing_crop_variety_id_fkey")
