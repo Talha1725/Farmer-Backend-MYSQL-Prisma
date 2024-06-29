@@ -93,6 +93,51 @@ function calculateCostsByCategory(dataArray) {
 	};
 }
 
+function calculateCosts(fieldsArray) {
+	return fieldsArray.map(field => {
+		const labourCostsMale = parseFloat(field.Farmer.labour_costs_male);
+		const labourCostsFemale = parseFloat(field.Farmer.labour_costs_female);
+		
+		// Helper function to calculate labour costs
+		const calculateLabourCost = (tasks) => {
+			return tasks.reduce((total, task) => {
+				const maleLabourCost = (task.male_labour_hours || 0) * labourCostsMale;
+				const femaleLabourCost = (task.female_labour_hours || 0) * labourCostsFemale;
+				return total + maleLabourCost + femaleLabourCost;
+			}, 0);
+		};
+		
+		const preparationCost = calculateLabourCost(field.preparation_of_field);
+		const irrigationCost = calculateLabourCost(field.Irrigation);
+		const weedTreatmentCost = calculateLabourCost(field.weed);
+		const diseaseAndPestCost = calculateLabourCost(field.disease_and_pest);
+		const sowingCost = calculateLabourCost(field.sowing);
+		const seedCost = field.sowing.reduce((total, sow) => {
+			const cost = (sow.kg_sown || 0) * (sow.price_per_kg || 0);
+			return total + cost;
+		}, 0);
+		const totalCost = preparationCost + irrigationCost + weedTreatmentCost + diseaseAndPestCost;
+		
+		return {
+			RegionName: field.States.name,
+			FarmerName: field.Farmer.name,
+			FieldName: field.field_name,
+			TotalArea: field.total_area,
+			PresentCrop: field.present_crop,
+			EstYield: field.harvesting.length ? field.harvesting[0].est_yield : null,
+			TotalPreparationCost: preparationCost,
+			SeedCost: seedCost,
+			SowingCost: sowingCost,
+			IrrigationCost: irrigationCost,
+			WeedTreatmentCost: weedTreatmentCost,
+			DiseaseAndPestCost: diseaseAndPestCost,
+			TotalCost: totalCost
+		};
+	});
+}
+
+
 module.exports = {
-	calculateCostsByCategory
+	calculateCostsByCategory,
+	calculateCosts
 };
