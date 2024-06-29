@@ -17,6 +17,7 @@ router.get('/', async (req, res) => {
 				Districts: true,                // Includes related Districts data
 				States: true,                   // Includes related States data
 				Tehsils: true,                  // Includes related Tehsils data
+				sowing: true,
 			}
 		});
 		res.json(fields);
@@ -46,11 +47,13 @@ router.post('/', async (req, res) => {
 					Districts: true,                // Includes related Districts data
 					States: true,                   // Includes related States data
 					Tehsils: true,                  // Includes related Tehsils data
+					sowing: true,
 				}
 			});
 		}
-		console.log('Field Already Existing')
+		console.log('fieldsQuery : ', fieldsQuery)
 		if (fieldsQuery.length > 0) {
+			console.log('Field Already Existing')
 			const field = fieldsQuery[0];
 			const updatedFieldData = {};
 			
@@ -166,8 +169,9 @@ router.post('/', async (req, res) => {
 			}
 			
 			
-			if (fieldData.farmer) {
-				const farmer = fieldData.farmer
+			if (fieldData.Farmer) {
+				
+				const farmer = fieldData.Farmer
 				let existingFarmerArray = []
 				if (farmer.sawie_nr) {
 					existingFarmerArray = await prisma.farmer.findMany({
@@ -210,6 +214,9 @@ router.post('/', async (req, res) => {
 				}
 				
 			}
+			else {
+				console.log('Farmer does not exist')
+			}
 			
 			if (fieldData.preparation_of_field) {
 				for (const preparation of fieldData.preparation_of_field) {
@@ -249,6 +256,8 @@ router.post('/', async (req, res) => {
 					}
 				}
 				
+			} else {
+				console.log('There was no preparation_of_field data')
 			}
 			
 			if (fieldData.Irrigation) {
@@ -289,6 +298,8 @@ router.post('/', async (req, res) => {
 						console.log('irrigation created', addedIrrigation);
 					}
 				}
+			} else {
+				console.log('There was no Irrigation data')
 			}
 			
 			if (fieldData.weed) {
@@ -330,6 +341,8 @@ router.post('/', async (req, res) => {
 						console.log('addedWeed :', addedWeed)
 					}
 				}
+			} else {
+				console.log('There was no weed data')
 			}
 			
 			if (fieldData.fertilizer) {
@@ -371,6 +384,8 @@ router.post('/', async (req, res) => {
 						console.log('addedfertilizer:', addedfertilizer)
 					}
 				}
+			} else {
+				console.log('There was no fertilizer data')
 			}
 			
 			if (fieldData.IssueDetected) {
@@ -412,6 +427,8 @@ router.post('/', async (req, res) => {
 						console.log('addedIssue :', addedfertilizer)
 					}
 				}
+			} else {
+				console.log('There was no IssueDetected data')
 			}
 			
 			if (fieldData.disease_and_pest) {
@@ -451,6 +468,8 @@ router.post('/', async (req, res) => {
 						console.log('addedDisease :', addedDisease)
 					}
 				}
+			} else {
+				console.log('There was no disease_and_pest data')
 			}
 			
 			if (fieldData.harvesting) {
@@ -491,6 +510,8 @@ router.post('/', async (req, res) => {
 						console.log('addedharvesting :', addedharvesting)
 					}
 				}
+			} else {
+				console.log('There was no disease_and_pest data')
 			}
 			
 			
@@ -528,13 +549,15 @@ router.post('/', async (req, res) => {
 					console.log('newCrop:', newCrop)
 					
 				}
-				www
+				
+			} else {
+				console.log('There was no crop data')
 			}
 			
-			
+			res.status(200).json({success: true})
 		} else {
 			console.log('do nothing - logic will be added later')
-			res.status(200).json({success: true})
+			res.status(200).json({success: true, message: 'Nothing Happened'})
 		}
 	} catch (error) {
 		res.status(500).json({error: error.message});

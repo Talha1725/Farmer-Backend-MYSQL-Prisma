@@ -26,7 +26,8 @@ router.get('/', async (req, res) => {
 						harvesting: true, // Updated to match schema field name
 						Districts: true,          // Adjusted for correct naming
 						States: true,             // Adjusted for correct naming
-						Tehsils: true
+						Tehsils: true,
+						sowing: true,
 					}
 				},
 				SuperVisor: true,
@@ -71,7 +72,8 @@ router.post('/', async (req, res) => {
 						harvesting: true,
 						Districts: true,          // Adjusted for correct naming
 						States: true,             // Adjusted for correct naming
-						Tehsils: true             // Adjusted for correct naming
+						Tehsils: true,             // Adjusted for correct naming
+						sowing: true,
 					}
 				},
 				SuperVisor: true,            // Adjusted for correct naming
