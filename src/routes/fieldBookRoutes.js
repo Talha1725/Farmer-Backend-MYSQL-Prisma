@@ -39,10 +39,10 @@ router.post('/', async (req, res) => {
 					Farmer: true,                   // Includes related Farmer data
 					preparation_of_field: true,       // Includes related preparation_of_field data
 					Irrigation: true,               // Includes related Irrigation data
-					weed: true,            // Includes related weed data
+					weed: true,                     // Includes related weed data
 					fertilizer: true,               // Includes related fertilizer data
 					IssueDetected: true,            // Includes related IssueDetected data
-					disease_and_pest: true,           // Includes related disease_and_pest data
+					disease_and_pest: true,          // Includes related disease_and_pest data
 					harvesting: true,               // Includes related harvesting data
 					Districts: true,                // Includes related Districts data
 					States: true,                   // Includes related States data
@@ -288,7 +288,7 @@ router.post('/', async (req, res) => {
 							});
 						}
 					} else {
-
+						
 						const addedIrrigation = await prisma.irrigation.create({
 							data: {
 								...irrigation, field_id: field.id
@@ -556,10 +556,172 @@ router.post('/', async (req, res) => {
 			
 			res.status(200).json({success: true})
 		} else {
-			console.log('do nothing - logic will be added later')
+			const {
+				crop,
+				harvesting,
+				disease_and_pest,
+				IssueDetected,
+				fertilizer,
+				weed,
+				Irrigation,
+				preparation_of_field,
+				Farmer,
+				sowing,
+				Tehsils,
+				Districts,
+				States,
+				...dataOnly_for_fields
+			} = fieldData;
+			// console.log('dataOnly_for_fields :', dataOnly_for_fields)
+			const field = await prisma.fields.create({
+					data: {
+						...dataOnly_for_fields,
+					}
+				})
+				.then(async (e) => { // Use async here if you need to use await inside
+					console.log('Field Added Successfully', e);
+					console.log("Farmer To enter : ", Farmer)
+					
+					if (Farmer && !Farmer.sawie_nr) {
+						await prisma.farmer.create({
+							data: {
+								...Farmer,
+							}
+						}).then(async (e) => {
+								console.log('Farmer Added Successfully', e)
+							})
+							.catch(err => {
+								console.error('Error in adding Farmer:', err);
+							});
+					} else {
+						console.log('Nothing to Add')
+					}
+					
+					
+					if (preparation_of_field.length > 0 && !preparation_of_field.id) {
+						await prisma.preparationOfField.create({
+							data: {
+								...preparation_of_field,
+								field_id: e.id
+							}
+						}).then(async (e) => {
+								console.log('New Preparation of Field Added Successfully', e)
+							})
+							.catch(err => {
+								console.error('Error in adding New Preparation of Field :', err);
+							});
+					} else {
+						console.log('Nothing to Add New Preparation of Field ')
+					}
+					
+					
+					if (Irrigation.length > 0 && !Irrigation.id) {
+						const irrigationCreatePromises = Irrigation.map(async (irrigationItem) => {
+							const AddedNewIrrigation = await prisma.irrigation.create({
+								data: {
+									...irrigationItem,
+									field_id: e.id
+								}
+							});
+							console.log('New Irrigation Added:', AddedNewIrrigation);
+						});
+						
+						await Promise.all(irrigationCreatePromises);
+					} else {
+						console.log('Nothing to Add New Irrigation of Field ')
+					}
+					
+					
+					if (weed.length > 0 && !weed.id) {
+						const weedCreatePromises = weed.map(async (weedItem) => {
+							const AddedNewWeed = await prisma.weedTreatment.create({
+								data: {
+									...weedItem,
+									field_id:  e.id
+								}
+							});
+							console.log('New Weed Treatment Added:', AddedNewWeed);
+						});
+						
+						await Promise.all(weedCreatePromises);
+					}
+					else {
+						console.log('Nothing to Add New weed of Field ')
+					}
+					if (fertilizer.length > 0 && !fertilizer.id) {
+						const fertilizerCreatePromises = fertilizer.map(async (fertilizerItem) => {
+							const AddedNewFertilizer = await prisma.fertilizer.create({
+								data: {
+									...fertilizerItem,
+									field_id:  e.id
+								}
+							});
+							console.log('New Fertilizer Added:', AddedNewFertilizer);
+						});
+						
+						await Promise.all(fertilizerCreatePromises);
+					}else {
+						console.log('Nothing to Add New fertilizer of Field ')
+					}
+					
+					if (IssueDetected.length > 0 && !IssueDetected.id) {
+						const issueDetectedCreatePromises = IssueDetected.map(async (issueDetectedItem) => {
+							const AddedNewIssueDetected = await prisma.issueDetected.create({
+								data: {
+									...issueDetectedItem,
+									field_id:  e.id
+								}
+							});
+							console.log('New Issue Detected Added:', AddedNewIssueDetected);
+						});
+						
+						await Promise.all(issueDetectedCreatePromises);
+					}
+					else {
+						console.log('Nothing to Add New Issue of Field ')
+					}
+					if (disease_and_pest.length > 0 && !disease_and_pest.id) {
+						const diseaseAndPestCreatePromises = disease_and_pest.map(async (diseaseAndPestItem) => {
+							const AddedNewDiseaseAndPest = await prisma.diseaseAndPest.create({
+								data: {
+									...diseaseAndPestItem,
+									field_id:  e.id
+								}
+							});
+							console.log('New Disease and Pest Added:', AddedNewDiseaseAndPest);
+						});
+						
+						await Promise.all(diseaseAndPestCreatePromises);
+					}
+					else {
+						console.log('Nothing to Add New Disease and Pest of Field ')
+					}
+					if (harvesting.length > 0 && !harvesting.id) {
+						const harvestingCreatePromises = harvesting.map(async (harvestingItem) => {
+							const AddedNewHarvesting = await prisma.harvesting.create({
+								data: {
+									...harvestingItem,
+									field_id:  e.id
+								}
+							});
+							console.log('New Harvesting Added:', AddedNewHarvesting);
+						});
+						
+						await Promise.all(harvestingCreatePromises);
+					}
+					else {
+						console.log('Nothing to Add New Harvesting of Field ')
+					}
+					
+				}).catch(err => {
+					console.error('Error in creating Field:', err);
+				});
+			
+			
 			res.status(200).json({success: true, message: 'Nothing Happened'})
 		}
 	} catch (error) {
+		console.log(error)
 		res.status(500).json({error: error.message});
 	}
 })
