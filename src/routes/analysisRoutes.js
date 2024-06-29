@@ -48,7 +48,7 @@ router.post('/', async (req, res) => {
 		console.log("Cost Breakdown:", costs);
 		
 		// res.status(200).json({costs: costs, FilterID: FilterID.id, results: fields});
-		res.status(200).json({fields: fields, costs: costs});
+		res.status(200).json({ costs: costs});
 	} catch (error) {
 		console.log('Error:', error);
 		res.status(400).json({error: error.message});
