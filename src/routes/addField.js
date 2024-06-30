@@ -16,7 +16,7 @@ router.post('/', async (req, res) => {
 			address,
 			field_name,
 			field_address, //coordinates
-			total_area,//field_area
+			total_area, //field_area
 			crop_id,
 			sowing_date,
 			harvesting_date,
@@ -34,7 +34,7 @@ router.post('/', async (req, res) => {
 					name: farmer_name,
 					father_name: father_name,
 					phone: phone,
-					// cnic:cnic,
+					cnic:cnic,
 					state: null,
 					tehsil: tehsil_id.toString(),
 					district: null,
@@ -115,7 +115,7 @@ router.post('/', async (req, res) => {
 					female_labour_hours: null,
 					kg_sown: null,
 					price_per_kg: null,
-					fieldsId: Field.id
+					field_id: Field.id
 				}
 			})
 			

@@ -67,6 +67,7 @@ model Farmer {
   phone                    String?
   state                    String?
   tehsil                   String?
+  cnic                     String?
   district                 String?
   farmer_address           String?
   farmer_contact_person_id Int                 @default(1)
@@ -155,6 +156,7 @@ model Fields {
   country_id                       Int?
   district_id                      Int
   field_address                    String?
+  field_address_v1                 String?
   state_id                         Int
   tehsil_id                        Int
   farmerSawie_nr                   Int
@@ -215,7 +217,6 @@ model Irrigation {
   @@index([field_id], map: "Irrigation_field_id_fkey")
 }
 
-
 model IssueDetected {
   id                   Int     @id @default(autoincrement())
   issue_date           String?
@@ -275,14 +276,14 @@ model Sowing {
   female_labour_hours Int?
   kg_sown             Int?
   price_per_kg        Int?
-  fieldsId            Int?
+  field_id            Int?
   Crop                Crop        @relation(fields: [crop_id], references: [id])
   CropVariety         CropVariety @relation(fields: [crop_variety_id], references: [id])
-  Fields              Fields?     @relation(fields: [fieldsId], references: [id])
+  Fields              Fields?     @relation(fields: [field_id], references: [id])
 
   @@index([crop_id], map: "Sowing_crop_id_fkey")
   @@index([crop_variety_id], map: "Sowing_crop_variety_id_fkey")
-  @@index([fieldsId], map: "Sowing_fieldsId_fkey")
+  @@index([field_id], map: "Sowing_fieldsId_fkey")
 }
 
 model States {
