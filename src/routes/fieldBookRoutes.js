@@ -7,12 +7,12 @@ router.get('/', async (req, res) => {
 		const fields = await prisma.fields.findMany({
 			include: {
 				Farmer: true,                   // Includes related Farmer data
-				preparation_of_field: true,       // Includes related preparation_of_field data
+				preparation_of_field: true,     // Includes related preparation_of_field data
 				Irrigation: true,               // Includes related Irrigation data
-				weed: true,            // Includes related weed data
+				weed: true,                     // Includes related weed data
 				fertilizer: true,               // Includes related fertilizer data
 				IssueDetected: true,            // Includes related IssueDetected data
-				disease_and_pest: true,           // Includes related disease_and_pest data
+				disease_and_pest: true,         // Includes related disease_and_pest data
 				harvesting: true,               // Includes related harvesting data
 				Districts: true,                // Includes related Districts data
 				States: true,                   // Includes related States data
@@ -74,6 +74,10 @@ router.post('/', async (req, res) => {
 			}
 			if (field.field_address !== fieldData.field_address) {
 				updatedFieldData.field_address = fieldData.field_address;
+			}
+			
+			if (field.field_address_v1 !== fieldData.field_address_v1) {
+				updatedFieldData.field_address_v1 = fieldData.field_address_v1;
 			}
 			if (field.organic_acres_farmed_again !== fieldData.organic_acres_farmed_again) {
 				updatedFieldData.organic_acres_farmed_again = fieldData.organic_acres_farmed_again;
@@ -190,6 +194,7 @@ router.post('/', async (req, res) => {
 						if (existingFarmer.tehsil !== farmer.tehsil) updateFarmerData.tehsil = farmer.tehsil;
 						if (existingFarmer.district !== farmer.district) updateFarmerData.district = farmer.district;
 						if (existingFarmer.farmer_address !== farmer.farmer_address) updateFarmerData.farmer_address = farmer.farmer_address;
+						if (existingFarmer.cnic !== farmer.cnic) updateFarmerData.cnic = farmer.cnic;
 						if (existingFarmer.farmer_contact_person_id !== farmer.farmer_contact_person_id) updateFarmerData.farmer_contact_person_id = farmer.farmer_contact_person_id;
 						if (existingFarmer.super_visor_id !== farmer.super_visor_id) updateFarmerData.super_visor_id = farmer.super_visor_id;
 						if (existingFarmer.labour_costs_male !== farmer.labour_costs_male) updateFarmerData.labour_costs_male = farmer.labour_costs_male;
@@ -513,6 +518,48 @@ router.post('/', async (req, res) => {
 				console.log('There was no disease_and_pest data')
 			}
 			
+			if (fieldData.sowing) {
+				for (const sowing of fieldData.sowing) {
+					var existingSowing2 = []
+					if (sowing.id) {
+						existingSowing2 = await prisma.sowing.findMany({
+							where: {
+								id: sowing.id
+							}
+						});
+					}
+					console.log('existingSowing', existingSowing2)
+					if (existingSowing2.length > 0) {
+						const updatedSowingData = {};
+						const existingHarvest = existingHarvest2[0]
+						if (existingHarvest.est_date_of_harvesting !== sowing.est_date_of_harvesting) updatedSowingData.est_date_of_harvesting = sowing.est_date_of_harvesting;
+						if (existingHarvest.date_of_completion !== sowing.date_of_completion) updatedSowingData.date_of_completion = sowing.date_of_completion;
+						if (existingHarvest.est_yield !== sowing.est_yield) updatedSowingData.est_yield = sowing.est_yield;
+						if (existingHarvest.harvested_yield !== sowing.harvested_yield) updatedSowingData.harvested_yield = sowing.harvested_yield;
+						if (existingHarvest.male_labour_hours !== sowing.male_labour_hours) updatedSowingData.male_labour_hours = sowing.male_labour_hours;
+						if (existingHarvest.female_labour_hours !== sowing.female_labour_hours) updatedSowingData.female_labour_hours = sowing.female_labour_hours;
+						if (existingHarvest.mechanisation !== sowing.mechanisation) updatedSowingData.mechanisation = sowing.mechanisation;
+						if (existingHarvest.cost_per_acer !== sowing.cost_per_acer) updatedSowingData.cost_per_acer = sowing.cost_per_acer;
+						if (existingHarvest.total_cost !== sowing.total_cost) updatedSowingData.total_cost = sowing.total_cost;
+						
+						if (Object.keys(updatedSowingData).length > 0) {
+							await prisma.sowing.update({
+								where: {id: sowing.id}, data: {...updatedSowingData, field_id: field.id}
+							});
+						}
+					} else {
+						const addedSowing = await prisma.sowing.create({
+							data: {
+								...sowing, field_id: field.id
+							}
+						});
+						console.log('addedSowing :', addedSowing)
+					}
+				}
+			} else {
+				console.log('There was no disease_and_pest data')
+			}
+			
 			
 			if (fieldData.crop) {
 				const crop = fieldData.crop
@@ -556,169 +603,7 @@ router.post('/', async (req, res) => {
 			
 			res.status(200).json({success: true})
 		} else {
-			const {
-				crop,
-				harvesting,
-				disease_and_pest,
-				IssueDetected,
-				fertilizer,
-				weed,
-				Irrigation,
-				preparation_of_field,
-				Farmer,
-				sowing,
-				Tehsils,
-				Districts,
-				States,
-				...dataOnly_for_fields
-			} = fieldData;
-			// console.log('dataOnly_for_fields :', dataOnly_for_fields)
-			const field = await prisma.fields.create({
-					data: {
-						...dataOnly_for_fields,
-					}
-				})
-				.then(async (e) => { // Use async here if you need to use await inside
-					console.log('Field Added Successfully', e);
-					console.log("Farmer To enter : ", Farmer)
-					
-					if (Farmer && !Farmer.sawie_nr) {
-						await prisma.farmer.create({
-							data: {
-								...Farmer,
-							}
-						}).then(async (e) => {
-								console.log('Farmer Added Successfully', e)
-							})
-							.catch(err => {
-								console.error('Error in adding Farmer:', err);
-							});
-					} else {
-						console.log('Nothing to Add')
-					}
-					
-					
-					if (preparation_of_field.length > 0 && !preparation_of_field.id) {
-						await prisma.preparationOfField.create({
-							data: {
-								...preparation_of_field,
-								field_id: e.id
-							}
-						}).then(async (e) => {
-								console.log('New Preparation of Field Added Successfully', e)
-							})
-							.catch(err => {
-								console.error('Error in adding New Preparation of Field :', err);
-							});
-					} else {
-						console.log('Nothing to Add New Preparation of Field ')
-					}
-					
-					
-					if (Irrigation.length > 0 && !Irrigation.id) {
-						const irrigationCreatePromises = Irrigation.map(async (irrigationItem) => {
-							const AddedNewIrrigation = await prisma.irrigation.create({
-								data: {
-									...irrigationItem,
-									field_id: e.id
-								}
-							});
-							console.log('New Irrigation Added:', AddedNewIrrigation);
-						});
-						
-						await Promise.all(irrigationCreatePromises);
-					} else {
-						console.log('Nothing to Add New Irrigation of Field ')
-					}
-					
-					
-					if (weed.length > 0 && !weed.id) {
-						const weedCreatePromises = weed.map(async (weedItem) => {
-							const AddedNewWeed = await prisma.weedTreatment.create({
-								data: {
-									...weedItem,
-									field_id:  e.id
-								}
-							});
-							console.log('New Weed Treatment Added:', AddedNewWeed);
-						});
-						
-						await Promise.all(weedCreatePromises);
-					}
-					else {
-						console.log('Nothing to Add New weed of Field ')
-					}
-					if (fertilizer.length > 0 && !fertilizer.id) {
-						const fertilizerCreatePromises = fertilizer.map(async (fertilizerItem) => {
-							const AddedNewFertilizer = await prisma.fertilizer.create({
-								data: {
-									...fertilizerItem,
-									field_id:  e.id
-								}
-							});
-							console.log('New Fertilizer Added:', AddedNewFertilizer);
-						});
-						
-						await Promise.all(fertilizerCreatePromises);
-					}else {
-						console.log('Nothing to Add New fertilizer of Field ')
-					}
-					
-					if (IssueDetected.length > 0 && !IssueDetected.id) {
-						const issueDetectedCreatePromises = IssueDetected.map(async (issueDetectedItem) => {
-							const AddedNewIssueDetected = await prisma.issueDetected.create({
-								data: {
-									...issueDetectedItem,
-									field_id:  e.id
-								}
-							});
-							console.log('New Issue Detected Added:', AddedNewIssueDetected);
-						});
-						
-						await Promise.all(issueDetectedCreatePromises);
-					}
-					else {
-						console.log('Nothing to Add New Issue of Field ')
-					}
-					if (disease_and_pest.length > 0 && !disease_and_pest.id) {
-						const diseaseAndPestCreatePromises = disease_and_pest.map(async (diseaseAndPestItem) => {
-							const AddedNewDiseaseAndPest = await prisma.diseaseAndPest.create({
-								data: {
-									...diseaseAndPestItem,
-									field_id:  e.id
-								}
-							});
-							console.log('New Disease and Pest Added:', AddedNewDiseaseAndPest);
-						});
-						
-						await Promise.all(diseaseAndPestCreatePromises);
-					}
-					else {
-						console.log('Nothing to Add New Disease and Pest of Field ')
-					}
-					if (harvesting.length > 0 && !harvesting.id) {
-						const harvestingCreatePromises = harvesting.map(async (harvestingItem) => {
-							const AddedNewHarvesting = await prisma.harvesting.create({
-								data: {
-									...harvestingItem,
-									field_id:  e.id
-								}
-							});
-							console.log('New Harvesting Added:', AddedNewHarvesting);
-						});
-						
-						await Promise.all(harvestingCreatePromises);
-					}
-					else {
-						console.log('Nothing to Add New Harvesting of Field ')
-					}
-					
-				}).catch(err => {
-					console.error('Error in creating Field:', err);
-				});
-			
-			
-			res.status(200).json({success: true, message: 'Nothing Happened'})
+			res.status(404).json({success: false, message: 'Field id not provided'})
 		}
 	} catch (error) {
 		console.log(error)
