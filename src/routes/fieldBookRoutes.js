@@ -215,7 +215,6 @@ router.post('/', async (req, res) => {
 						}
 					})
 					console.log('newFarmer:', newFarmer)
-					
 				}
 				
 			} else {

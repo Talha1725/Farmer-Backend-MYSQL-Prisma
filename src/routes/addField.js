@@ -28,16 +28,27 @@ router.post('/', async (req, res) => {
 		let sowing;
 		let harvesting;
 		
+		if (tehsil_id) {
+			tehsil = await prisma.tehsils.findUnique({
+				where: {id: tehsil_id},
+				select: {
+					state_id: true,
+					district_id: true,
+				},
+			});
+		}
+		
+		
 		if (!sawie_nr) {
 			Farmer = await prisma.farmer.create({
 				data: {
 					name: farmer_name,
 					father_name: father_name,
 					phone: phone,
-					cnic:cnic,
-					state: null,
+					cnic: cnic,
+					state: tehsil.state_id,
 					tehsil: tehsil_id.toString(),
-					district: null,
+					district: tehsil.district_id,
 					farmer_address: address,
 					farmer_contact_person_id: 1,
 					super_visor_id: 1,
@@ -53,15 +64,6 @@ router.post('/', async (req, res) => {
 			})
 		}
 		
-		if (Farmer && tehsil_id) {
-			tehsil = await prisma.tehsils.findUnique({
-				where: {id: tehsil_id},
-				select: {
-					state_id: true,
-					district_id: true,
-				},
-			});
-		}
 		
 		if (Farmer && tehsil.state_id && tehsil.district_id && tehsil_id) {
 			Field = await prisma.fields.create({
