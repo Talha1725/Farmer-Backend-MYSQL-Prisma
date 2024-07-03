@@ -12,13 +12,13 @@ const app = express();
 
 app.use(express.json());
 
-app.use('/farmer-book', farmerBookRoutes);
-app.use('/field-book', fieldBookRoutes);
+app.use('/add-field', AddField);
 app.use('/analysis', analysisRoutes);
 app.use('/get-all-books', getBookByID);
-app.use('/get-field-book-id', getFieldBookByIDs);
-app.use('/add-field', AddField);
+app.use('/field-book', fieldBookRoutes);
 app.use('/get-all-farmer-id', FarmerIDs);
+app.use('/farmer-book', farmerBookRoutes);
+app.use('/get-field-book-id', getFieldBookByIDs);
 
 
 module.exports = app;
