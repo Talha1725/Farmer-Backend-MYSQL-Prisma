@@ -3,8 +3,8 @@ const prisma = require('../prismaClient');
 const router = express.Router();
 
 router.post('/', async (req, res) => {
-	const { id } = req.body;
-	console.log('id',id)
+	const {id} = req.body;
+	console.log('id', id)
 	try {
 		// Fetch fieldsBook filtered by Farmer.sawie_nr in the provided array
 		const fieldsBook = await prisma.fields.findMany({
@@ -24,7 +24,7 @@ router.post('/', async (req, res) => {
 				IssueDetected: true,
 				disease_and_pest: true,
 				harvesting: true,
-				Districts: true,
+				Districts: true, sowing: true,
 				States: true,
 				Tehsils: true
 			}
@@ -57,7 +57,8 @@ router.post('/', async (req, res) => {
 						harvesting: true,
 						Districts: true,
 						States: true,
-						Tehsils: true
+						Tehsils: true,
+						sowing: true,
 					}
 				},
 				SuperVisor: true,
@@ -72,7 +73,7 @@ router.post('/', async (req, res) => {
 		};
 		res.json(fields);
 	} catch (error) {
-		res.status(500).json({ error: error.message });
+		res.status(500).json({error: error.message});
 	}
 });
 
