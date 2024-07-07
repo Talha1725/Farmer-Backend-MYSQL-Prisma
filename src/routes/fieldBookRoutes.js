@@ -52,6 +52,9 @@ router.post('/', async (req, res) => {
 			});
 		}
 		console.log('fieldsQuery : ', fieldsQuery)
+		//Variables declaration
+		let objectToReturn = {}
+		
 		if (fieldsQuery.length > 0) {
 			console.log('Field Already Existing')
 			const field = fieldsQuery[0];
@@ -167,14 +170,34 @@ router.post('/', async (req, res) => {
 			console.log('updatedFieldData', updatedFieldData);
 			if (Object.keys(updatedFieldData).length > 0) {
 				const addedField = await prisma.fields.update({
-					where: {id: fieldData.id}, data: updatedFieldData,
+					where: {id: fieldData.id},
+					data: updatedFieldData,
 				});
 				console.log('addedFieldData', addedField);
+				Object.assign(objectToReturn, addedField);
+			} else {
+				const {
+					Farmer,
+					preparation_of_field,
+					Irrigation,
+					weed,
+					fertilizer,
+					IssueDetected,
+					disease_and_pest,
+					harvesting,
+					Districts,
+					States,
+					Tehsils,
+					sowing,
+					...fieldsWithoutArraysObjects
+				} = field;
+				Object.assign(objectToReturn, fieldsWithoutArraysObjects);
 			}
+			
+			console.log('objectToReturn', objectToReturn);
 			
 			
 			if (fieldData.Farmer) {
-				
 				const farmer = fieldData.Farmer
 				let existingFarmerArray = []
 				if (farmer.sawie_nr) {
@@ -200,28 +223,34 @@ router.post('/', async (req, res) => {
 						if (existingFarmer.labour_costs_male !== farmer.labour_costs_male) updateFarmerData.labour_costs_male = farmer.labour_costs_male;
 						if (existingFarmer.labour_costs_female !== farmer.labour_costs_female) updateFarmerData.labour_costs_female = farmer.labour_costs_female;
 						console.log('updateFarmerData :', updateFarmerData)
+						
 						if (Object.keys(updateFarmerData).length > 0) {
 							const upDatedFarmer = await prisma.farmer.update({
 								where: {sawie_nr: farmer.sawie_nr}, data: {...updateFarmerData}
 							});
 							console.log('upDatedFarmer:', upDatedFarmer)
+							objectToReturn.Farmer = upDatedFarmer
+							console.log('objectToReturn in Farmer: ', objectToReturn)
+						} else {
+							objectToReturn.Farmer = existingFarmer
+							console.log('objectToReturn in Farmer: ', objectToReturn)
 						}
 					}
 				} else {
-					
 					const newFarmer = await prisma.farmer.create({
 						data: {
 							...farmer
 						}
 					})
 					console.log('newFarmer:', newFarmer)
+					objectToReturn.Farmer = newFarmer
 				}
-				
 			} else {
 				console.log('Farmer does not exist')
+				objectToReturn.Farmer = {}
 			}
 			
-			if (fieldData.preparation_of_field) {
+			if (fieldData.preparation_of_field.length && fieldData.preparation_of_field.length > 0) {
 				for (const preparation of fieldData.preparation_of_field) {
 					let existingPreparation = [];
 					if (preparation.id) {
@@ -244,26 +273,32 @@ router.post('/', async (req, res) => {
 						console.log('updatedPreparationData : ', updatedPreparationData)
 						
 						if (Object.keys(updatedPreparationData).length > 0) {
-							await prisma.preparationOfField.update({
+							const updatedPreparation = await prisma.preparationOfField.update({
 								where: {id: preparation.id}, data: {...updatedPreparationData, field_id: field.id},
 							});
+							console.log('updatedPreparation : ', updatedPreparation)
+							objectToReturn.preparation_of_field = updatedPreparation
+						} else {
+							objectToReturn.preparation_of_field = existingPreparationIndex
+							console.log('objectToReturn in PreparationOfField: ', objectToReturn)
 						}
 					} else {
-						
 						const addedPrep = await prisma.preparationOfField.create({
 							data: {
 								...preparation, field_id: field.id
 							}
 						});
 						console.log('preparation created', addedPrep);
+						objectToReturn.preparation_of_field = addedPrep
 					}
 				}
 				
 			} else {
+				objectToReturn.preparation_of_field = []
 				console.log('There was no preparation_of_field data')
 			}
 			
-			if (fieldData.Irrigation) {
+			if (fieldData.Irrigation && fieldData.Irrigation.length > 0) {
 				for (const irrigation of fieldData.Irrigation) {
 					
 					var existingIrrigation2 = []
@@ -287,9 +322,13 @@ router.post('/', async (req, res) => {
 						if (existingIrrigation.cost_acre !== irrigation.cost_acre) updatedIrrigationData.cost_acre = irrigation.cost_acre;
 						console.log('updatedIrrigationData:', updatedIrrigationData)
 						if (Object.keys(updatedIrrigationData).length > 0) {
-							await prisma.irrigation.update({
+							const UpdatedIrrigation = await prisma.irrigation.update({
 								where: {id: irrigation.id}, data: {...updatedIrrigationData, field_id: field.id}
 							});
+							objectToReturn.Irrigation = UpdatedIrrigation
+						} else {
+							objectToReturn.Irrigation = existingIrrigation
+							console.log('objectToReturn in Irrigation: ', objectToReturn)
 						}
 					} else {
 						
@@ -299,13 +338,16 @@ router.post('/', async (req, res) => {
 							}
 						});
 						console.log('irrigation created', addedIrrigation);
+						objectToReturn.Irrigation = addedIrrigation
+						
 					}
 				}
 			} else {
+				objectToReturn.Irrigation = []
 				console.log('There was no Irrigation data')
 			}
 			
-			if (fieldData.weed) {
+			if (fieldData.weed && fieldData.weed.length > 0) {
 				for (const weed of fieldData.weed) {
 					var existingWeed2 = []
 					if (weed.id) {
@@ -330,9 +372,15 @@ router.post('/', async (req, res) => {
 						if (existingWeed.cost_per_acer !== weed.cost_per_acer) updatedWeedData.cost_per_acer = weed.cost_per_acer;
 						
 						if (Object.keys(updatedWeedData).length > 0) {
-							await prisma.weedTreatment.update({
+							const updatedWeed = await prisma.weedTreatment.update({
 								where: {id: weed.id}, data: {...updatedWeedData, field_id: field.id}
 							});
+							
+							console.log('updatedWeed :', updatedWeed)
+							objectToReturn.weed = updatedWeed
+						} else {
+							objectToReturn.weed = existingWeed
+							console.log('objectToReturn in weed: ', objectToReturn)
 						}
 					} else {
 						
@@ -342,13 +390,16 @@ router.post('/', async (req, res) => {
 							}
 						});
 						console.log('addedWeed :', addedWeed)
+						objectToReturn.weed = addedWeed
+						
 					}
 				}
 			} else {
+				objectToReturn.weed = []
 				console.log('There was no weed data')
 			}
 			
-			if (fieldData.fertilizer) {
+			if (fieldData.fertilizer && fieldData.fertilizer.length > 0) {
 				for (const fertilizer of fieldData.fertilizer) {
 					existingfertilizer2 = []
 					if (fertilizer.id) {
@@ -373,9 +424,14 @@ router.post('/', async (req, res) => {
 						if (existingfertilizer.cost_per_acer !== fertilizer.cost_per_acer) updatedfertilizerData.cost_per_acer = fertilizer.cost_per_acer;
 						
 						if (Object.keys(updatedfertilizerData).length > 0) {
-							await prisma.fertilizer.update({
+							const updatedFertilizer = await prisma.fertilizer.update({
 								where: {id: fertilizer.id}, data: {...updatedfertilizerData, field_id: field.id}
 							});
+							console.log('updatedFertilizer', updatedFertilizer)
+							objectToReturn.fertilizer = updatedFertilizer
+						} else {
+							objectToReturn.fertilizer = existingfertilizer
+							console.log('objectToReturn in Farmer: ', objectToReturn)
 						}
 					} else {
 						
@@ -385,13 +441,16 @@ router.post('/', async (req, res) => {
 							}
 						});
 						console.log('addedfertilizer:', addedfertilizer)
+						objectToReturn.fertilizer = addedfertilizer
+						
 					}
 				}
 			} else {
+				objectToReturn.fertilizer = []
 				console.log('There was no fertilizer data')
 			}
 			
-			if (fieldData.IssueDetected) {
+			if (fieldData.IssueDetected && fieldData.IssueDetected.length > 0) {
 				for (const issue of fieldData.IssueDetected) {
 					
 					var existingIssue2 = []
@@ -417,9 +476,14 @@ router.post('/', async (req, res) => {
 						if (existingIssue.cost_per_acer !== issue.cost_per_acer) updatedIssueData.cost_per_acer = issue.cost_per_acer;
 						
 						if (Object.keys(updatedIssueData).length > 0) {
-							await prisma.issueDetected.update({
+							const UpdatedIssue = await prisma.issueDetected.update({
 								where: {id: issue.id}, data: {...updatedIssueData, field_id: field.id}
 							});
+							console.log('UpdatedIssue', UpdatedIssue)
+							objectToReturn.IssueDetected = UpdatedIssue
+						} else {
+							objectToReturn.IssueDetected = existingIssue
+							console.log('objectToReturn in Farmer: ', objectToReturn)
 						}
 					} else {
 						const addedfertilizer = await prisma.issueDetected.create({
@@ -428,13 +492,15 @@ router.post('/', async (req, res) => {
 							}
 						});
 						console.log('addedIssue :', addedfertilizer)
+						objectToReturn.IssueDetected = addedfertilizer
 					}
 				}
 			} else {
+				objectToReturn.IssueDetected = []
 				console.log('There was no IssueDetected data')
 			}
 			
-			if (fieldData.disease_and_pest) {
+			if (fieldData.disease_and_pest && fieldData.disease_and_pest.length > 0) {
 				for (const disease of fieldData.disease_and_pest) {
 					var existingDisease2 = []
 					if (disease.id) {
@@ -458,9 +524,14 @@ router.post('/', async (req, res) => {
 						if (existingDisease.cost_per_acer !== disease.cost_per_acer) updatedDiseaseData.cost_per_acer = disease.cost_per_acer;
 						
 						if (Object.keys(updatedDiseaseData).length > 0) {
-							await prisma.diseaseAndPest.update({
+							const UpdatedDisease = await prisma.diseaseAndPest.update({
 								where: {id: disease.id}, data: {...updatedDiseaseData, field_id: field.id}
 							});
+							console.log('UpdatedDisease :', UpdatedDisease)
+							objectToReturn.disease_and_pest = UpdatedDisease
+						} else {
+							objectToReturn.disease_and_pest = existingDisease
+							console.log('objectToReturn in Farmer: ', objectToReturn)
 						}
 					} else {
 						const addedDisease = await prisma.diseaseAndPest.create({
@@ -469,13 +540,16 @@ router.post('/', async (req, res) => {
 							}
 						});
 						console.log('addedDisease :', addedDisease)
+						objectToReturn.disease_and_pest = addedDisease
+						
 					}
 				}
 			} else {
+				objectToReturn.disease_and_pest = []
 				console.log('There was no disease_and_pest data')
 			}
 			
-			if (fieldData.harvesting) {
+			if (fieldData.harvesting && fieldData.harvesting.length > 0) {
 				for (const harvest of fieldData.harvesting) {
 					var existingHarvest2 = []
 					if (harvest.id) {
@@ -500,9 +574,14 @@ router.post('/', async (req, res) => {
 						if (existingHarvest.total_cost !== harvest.total_cost) updatedHarvestData.total_cost = harvest.total_cost;
 						
 						if (Object.keys(updatedHarvestData).length > 0) {
-							await prisma.harvesting.update({
+							const UpdatedHarvesting = await prisma.harvesting.update({
 								where: {id: harvest.id}, data: {...updatedHarvestData, field_id: field.id}
 							});
+							console.log('UpdatedHarvesting :', UpdatedHarvesting)
+							objectToReturn.harvesting = UpdatedHarvesting
+						} else {
+							objectToReturn.harvesting = existingHarvest
+							console.log('objectToReturn in Farmer: ', objectToReturn)
 						}
 					} else {
 						const addedharvesting = await prisma.harvesting.create({
@@ -511,13 +590,16 @@ router.post('/', async (req, res) => {
 							}
 						});
 						console.log('addedharvesting :', addedharvesting)
+						objectToReturn.harvesting = addedharvesting
+						
 					}
 				}
 			} else {
+				objectToReturn.harvesting = []
 				console.log('There was no disease_and_pest data')
 			}
 			
-			if (fieldData.sowing) {
+			if (fieldData.sowing && fieldData.sowing.length > 0) {
 				for (const sowing of fieldData.sowing) {
 					var existingSowing2 = []
 					if (sowing.id) {
@@ -542,9 +624,14 @@ router.post('/', async (req, res) => {
 						if (existingHarvest.total_cost !== sowing.total_cost) updatedSowingData.total_cost = sowing.total_cost;
 						
 						if (Object.keys(updatedSowingData).length > 0) {
-							await prisma.sowing.update({
+							const UpdatedSowing = await prisma.sowing.update({
 								where: {id: sowing.id}, data: {...updatedSowingData, field_id: field.id}
 							});
+							console.log('UpdatedSowing : ', UpdatedSowing)
+							objectToReturn.sowing = UpdatedSowing
+						} else {
+							objectToReturn.sowing = existingHarvest
+							console.log('objectToReturn in Farmer: ', objectToReturn)
 						}
 					} else {
 						const addedSowing = await prisma.sowing.create({
@@ -553,12 +640,14 @@ router.post('/', async (req, res) => {
 							}
 						});
 						console.log('addedSowing :', addedSowing)
+						objectToReturn.sowing = addedSowing
+						
 					}
 				}
 			} else {
+				objectToReturn.sowing = []
 				console.log('There was no disease_and_pest data')
 			}
-			
 			
 			if (fieldData.crop) {
 				const crop = fieldData.crop
@@ -599,8 +688,8 @@ router.post('/', async (req, res) => {
 				console.log('There was no crop data')
 			}
 			
-			
-			res.status(200).json({success: true})
+			console.log('objectToReturn,', objectToReturn)
+			res.status(200).json({success: true, object: objectToReturn})
 		} else {
 			res.status(404).json({success: false, message: 'Field id not provided'})
 		}
