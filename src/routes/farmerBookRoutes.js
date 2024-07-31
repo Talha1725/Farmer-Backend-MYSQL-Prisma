@@ -7,8 +7,8 @@ router.get('/', async (req, res) => {
 	try {
 		const farmers = await prisma.farmer.findMany({
 			include: {
-				MotorTubeWell: true,
-				SolarTubeWell: true,
+				motor_tube_well: true,
+				solar_tube_well: true,
 				FarmerCrop: {
 					include: {
 						Crop: true,
@@ -30,8 +30,9 @@ router.get('/', async (req, res) => {
 						sowing: true,
 					}
 				},
-				SuperVisor: true,
-				FarmerContactPerson: true
+				supervisor: true,
+				FarmerContactPerson: true,
+				training:true
 			}
 		});
 		res.json(farmers);

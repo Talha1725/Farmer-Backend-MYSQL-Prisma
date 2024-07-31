@@ -61,26 +61,42 @@ model Districts {
 }
 
 model Farmer {
-  sawie_nr                 Int                 @id @default(autoincrement())
-  name                     String?
-  father_name              String?
-  phone                    String?
-  state                    String?
-  tehsil                   String?
-  cnic                     String?
-  district                 String?
-  farmer_address           String?
-  farmer_contact_person_id Int                 @default(1)
-  super_visor_id           Int                 @default(1)
-  labour_costs_female      String?
-  labour_costs_male        String?
-  FarmerContactPerson      FarmerContactPerson @relation(fields: [farmer_contact_person_id], references: [id])
-  SuperVisor               SuperVisor          @relation(fields: [super_visor_id], references: [id])
-  FarmerCrop               FarmerCrop[]
-  Fields                   Fields[]
-  MotorTubeWell            MotorTubeWell?
-  SolarTubeWell            SolarTubeWell?
-  Training                 Training?
+  sawie_nr                         Int                 @id @default(autoincrement())
+  name                             String?
+  father_name                      String?
+  phone                            String?
+  state                            String?
+  tehsil                           String?
+  district                         String?
+  farmer_address                   String?
+  farmer_contact_person_id         Int                 @default(1)
+  super_visor_id                   Int                 @default(1)
+  labour_costs_female              String?
+  labour_costs_male                String?
+  cnic                             String?
+  canal_cost_cubic_m               String?
+  canal_cost_hour                  String?
+  crop_name                        String?
+  date_purchasing_seed             String?
+  organic_again                    String?
+  organic_changed                  String?
+  other_area                       String?
+  production_forecast              String?
+  regen_farming                    String?
+  seed_quantity                    String?
+  seed_source                      String?
+  seed_type                        String?
+  special_farm_processing_aability String?
+  special_farm_storage_aability    String?
+  total_seed_price                 String?
+  traditional                      String?
+  FarmerContactPerson              FarmerContactPerson @relation(fields: [farmer_contact_person_id], references: [id])
+  supervisor                       SuperVisor          @relation(fields: [super_visor_id], references: [id])
+  FarmerCrop                       FarmerCrop[]
+  Fields                           Fields[]
+  motor_tube_well                  MotorTubeWell?
+  solar_tube_well                  SolarTubeWell?
+  training                         Training?
 
   @@index([farmer_contact_person_id], map: "Farmer_farmer_contact_person_id_fkey")
   @@index([super_visor_id], map: "Farmer_super_visor_id_fkey")
@@ -155,8 +171,7 @@ model Fields {
   trees_at_edge                    String?
   country_id                       Int?
   district_id                      Int
-  field_address                    String?
-  field_address_v1                 String?
+  field_address                    String?              @db.VarChar(500)
   state_id                         Int
   tehsil_id                        Int
   farmerSawie_nr                   Int
@@ -166,6 +181,7 @@ model Fields {
   present_crop_v                   String?
   prev_crop                        String?
   prev_crop_v                      String?
+  field_address_v1                 String?              @db.VarChar(500)
   disease_and_pest                 DiseaseAndPest[]
   fertilizer                       Fertilizer[]
   Districts                        Districts            @relation(fields: [district_id], references: [id])
