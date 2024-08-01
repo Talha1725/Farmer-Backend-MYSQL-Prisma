@@ -44,15 +44,16 @@ router.get('/', async (req, res) => {
 
 
 router.post('/', async (req, res) => {
-    let alreadyExistField = false;
+    var alreadyExistField = false;
     try {
         const farmData = req.body;
 
         // Retrieve existing data
         const farmerQuery = await prisma.farmer.findMany({
-            where: {
-                sawie_nr: farmData?.sawie_nr
-            },
+            where:
+                {sawie_nr: farmData?.sawie_nr},
+
+
             include: {
                 motor_tube_well: true,          // Assuming this is the correct relation name
                 solar_tube_well: true,          // Assuming this is the correct relation name
@@ -185,16 +186,9 @@ router.post('/', async (req, res) => {
                                 }
                             });
                             console.log('UpdatedFiled :', UpdatedFiled);
-
                         }
                     } else {
-                        addedField = await prisma.fields.create({
-                            data: {
-                                farmerSawie_nr: farmer.sawie_nr, ...fieldsWithoutNestedProperties,
-                            }
-                        });
-                        console.log('Filed Added : ', addedField)
-
+                        res.status(404).json({error: 'Field id not Found'});
                     }
 
                     // Check and update preparation_of_field
@@ -214,7 +208,7 @@ router.post('/', async (req, res) => {
                                 const updatedPreparationData = {};
                                 const existingPreparationIndex = existingPreparation[0]
                                 if (existingPreparationIndex.levelalized !== preparation.levelalized) updatedPreparationData.levelalized = preparation.levelalized;
-                                if (existingPreparationIndex.completion_date !== preparation.completion_date) updatedPreparationData.completion_date = preparation.completion_date;
+                                if (existingPreparationIndex.compvarion_date !== preparation.compvarion_date) updatedPreparationData.compvarion_date = preparation.compvarion_date;
                                 if (existingPreparationIndex.activities !== preparation.activities) updatedPreparationData.activities = preparation.activities;
                                 if (existingPreparationIndex.male_labour_hours !== preparation.male_labour_hours) updatedPreparationData.male_labour_hours = preparation.male_labour_hours;
                                 if (existingPreparationIndex.female_labour_hours !== preparation.female_labour_hours) updatedPreparationData.female_labour_hours = preparation.female_labour_hours;
@@ -228,7 +222,7 @@ router.post('/', async (req, res) => {
                                     });
                                 }
                             } else {
-                                const FinalFieldID = existingField ? existingField.id : addedField.id
+                                const FinalFieldID = existingField.id
                                 const addedPrep = await prisma.preparationOfField.create({
                                     data: {
                                         ...preparation, field_id: FinalFieldID
@@ -270,7 +264,7 @@ router.post('/', async (req, res) => {
                                     });
                                 }
                             } else {
-                                const FinalFieldID = existingField ? existingField.id : addedField.id
+                                const FinalFieldID = existingField.id
 
                                 const addedIrrigation = await prisma.irrigation.create({
                                     data: {
@@ -314,7 +308,7 @@ router.post('/', async (req, res) => {
                                     });
                                 }
                             } else {
-                                const FinalFieldID = existingField ? existingField.id : addedField.id
+                                const FinalFieldID = existingField.id
                                 const addedWeed = await prisma.weedTreatment.create({
                                     data: {
                                         ...weed, field_id: FinalFieldID
@@ -465,7 +459,7 @@ router.post('/', async (req, res) => {
                                 const updatedHarvestData = {};
                                 existingHarvest = existingHarvest2[0]
                                 if (existingHarvest.est_date_of_harvesting !== harvest.est_date_of_harvesting) updatedHarvestData.est_date_of_harvesting = harvest.est_date_of_harvesting;
-                                if (existingHarvest.date_of_completion !== harvest.date_of_completion) updatedHarvestData.date_of_completion = harvest.date_of_completion;
+                                if (existingHarvest.date_of_compvarion !== harvest.date_of_compvarion) updatedHarvestData.date_of_compvarion = harvest.date_of_compvarion;
                                 if (existingHarvest.est_yield !== harvest.est_yield) updatedHarvestData.est_yield = harvest.est_yield;
                                 if (existingHarvest.harvested_yield !== harvest.harvested_yield) updatedHarvestData.harvested_yield = harvest.harvested_yield;
                                 if (existingHarvest.male_labour_hours !== harvest.male_labour_hours) updatedHarvestData.male_labour_hours = harvest.male_labour_hours;
@@ -516,26 +510,6 @@ router.post('/', async (req, res) => {
                 }
             }
 
-// Update or create FarmerContactPerson
-            if (farmData.FarmerContactPerson) {
-                const updatedContactPersonData = {};
-                if (farmer.FarmerContactPerson.name !== farmData.FarmerContactPerson.name) updatedContactPersonData.name = farmData.FarmerContactPerson.name;
-                if (farmer.FarmerContactPerson.number !== farmData.FarmerContactPerson.number) updatedContactPersonData.number = farmData.FarmerContactPerson.number;
-                console.log('updatedContactPersonData : ', updatedContactPersonData);
-
-                if (Object.keys(updatedContactPersonData).length > 0) {
-                    if (farmer.FarmerContactPerson.id) {
-                        console.log('Updating FarmerContactPerson with ID:', farmer.FarmerContactPerson.id);
-                        await prisma.farmerContactPerson.update({
-                            where: {id: farmer.FarmerContactPerson.id},
-                            data: updatedContactPersonData
-                        });
-                    } else {
-                        console.log('Creating new FarmerContactPerson');
-                        await prisma.farmerContactPerson.create({data: updatedContactPersonData});
-                    }
-                }
-            }
 
 // Update or create Training
             if (farmData.training) {
@@ -563,13 +537,12 @@ router.post('/', async (req, res) => {
             }
 
 // Update or create SolarTubeWell
-            if (farmData.solar_tube_well) {
+            if (farmData.solar_tube_well && Object.keys(farmData.solar_tube_well).length > 0) {
                 const updatedsolar_tube_wellData = {};
                 if (farmer.solar_tube_well.activity_date !== farmData.solar_tube_well.activity_date) updatedsolar_tube_wellData.activity_date = farmData.solar_tube_well.activity_date;
                 if (farmer.solar_tube_well.repairing_costs !== farmData.solar_tube_well.repairing_costs) updatedsolar_tube_wellData.repairing_costs = farmData.solar_tube_well.repairing_costs;
                 if (farmer.solar_tube_well.manageing_hours !== farmData.solar_tube_well.manageing_hours) updatedsolar_tube_wellData.manageing_hours = farmData.solar_tube_well.manageing_hours;
                 if (farmer.solar_tube_well.costs_per_hour !== farmData.solar_tube_well.costs_per_hour) updatedsolar_tube_wellData.costs_per_hour = farmData.solar_tube_well.costs_per_hour;
-                if (farmer.solar_tube_well.farmerSawie_nr !== farmData.solar_tube_well.farmerSawie_nr) updatedsolar_tube_wellData.farmerSawie_nr = farmData.solar_tube_well.farmerSawie_nr;
 
                 console.log('updatedsolar_tube_wellData : ', updatedsolar_tube_wellData);
 
@@ -587,9 +560,28 @@ router.post('/', async (req, res) => {
                 }
             }
 
+            if (farmData.motor_tube_well && Object.keys(farmData.motor_tube_well).length > 0) {
+                const updatedmotor_tube_wellData = {};
+                if (farmer.motor_tube_well.activity_date !== farmData.motor_tube_well.activity_date) updatedmotor_tube_wellData.activity_date = farmData.motor_tube_well.activity_date;
+                if (farmer.motor_tube_well.repairing_costs !== farmData.motor_tube_well.repairing_costs) updatedmotor_tube_wellData.repairing_costs = farmData.motor_tube_well.repairing_costs;
+                if (farmer.motor_tube_well.manageing_hours !== farmData.motor_tube_well.manageing_hours) updatedmotor_tube_wellData.manageing_hours = farmData.motor_tube_well.manageing_hours;
+                if (farmer.motor_tube_well.diesel_quantity !== farmData.motor_tube_well.diesel_quantity) updatedmotor_tube_wellData.diesel_quantity = farmData.motor_tube_well.diesel_quantity;
+                if (farmer.motor_tube_well.costs_per_hour !== farmData.motor_tube_well.costs_per_hour) updatedmotor_tube_wellData.costs_per_hour = farmData.motor_tube_well.costs_per_hour;
+                if (farmer.motor_tube_well.costs_per_liter !== farmData.motor_tube_well.costs_per_liter) updatedmotor_tube_wellData.costs_per_liter = farmData.motor_tube_well.costs_per_liter;
+
+                console.log('updatedmotor_tube_wellData : ', updatedmotor_tube_wellData);
+
+                if (Object.keys(updatedmotor_tube_wellData).length > 0) {
+                    await prisma.motorTubeWell.update({
+                        where: {id: farmer.motor_tube_well.id},
+                        data: updatedmotor_tube_wellData
+                    });
+                }
+            }
+
 
         } else {
-            console.log('do nothing')
+            res.status(404).json({error: 'Sawie number Does not exist'});
         }
 
         res.json({success: true});
