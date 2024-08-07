@@ -38,8 +38,8 @@ router.post('/', async (req, res) => {
 				}
 			},
 			include: {
-				MotorTubeWell: true,
-				SolarTubeWell: true,
+				motor_tube_well: true,
+				solar_tube_well: true,
 				FarmerCrop: {
 					include: {
 						Crop: true,
@@ -57,11 +57,13 @@ router.post('/', async (req, res) => {
 						harvesting: true,
 						Districts: true,
 						States: true,
-						Tehsils: true
+						Tehsils: true,
+						sowing: true,
 					}
 				},
-				SuperVisor: true,
-				FarmerContactPerson: true
+				supervisor: true,
+				FarmerContactPerson: true,
+				training: true
 			}
 		});
 		
